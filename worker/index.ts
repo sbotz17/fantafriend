@@ -1,12 +1,23 @@
 export default {
-  fetch(request) {
+  async fetch(request: Request) {
     const url = new URL(request.url);
 
-    if (url.pathname.startsWith("/api/")) {
+    if (url.pathname === "/api/health") {
       return Response.json({
-        name: "Cloudflare",
+        status: "ok",
+        service: "FantaFriend API",
+        version: "0.1.0",
+        timestamp: new Date().toISOString(),
       });
     }
-		return new Response(null, { status: 404 });
+
+    if (url.pathname.startsWith("/api/")) {
+      return Response.json(
+        { error: "Endpoint not found" },
+        { status: 404 },
+      );
+    }
+
+    return new Response(null, { status: 404 });
   },
 } satisfies ExportedHandler<Env>;
