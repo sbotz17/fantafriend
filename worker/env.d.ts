@@ -3,4 +3,7 @@
 // si imposta come secret con `wrangler secret put DATABASE_URL`.
 interface Env {
   DATABASE_URL: string;
+  // Binding agli asset statici (SPA): usato per servire index.html sulle rotte
+  // lato client (fallback single-page-application).
+  ASSETS: Fetcher;
 }

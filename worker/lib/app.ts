@@ -113,8 +113,8 @@ export function registerErrorHandling(app: Hono<AppEnv>) {
     if (c.req.path.startsWith("/api/")) {
       return c.json({ error: "Endpoint non trovato" }, 404);
     }
-    // Le rotte non-API sono servite dagli asset statici (SPA): qui il Worker
-    // risponde solo come fallback.
-    return c.body(null, 404);
+    // Rotte non-API: delega agli asset statici, che con il fallback
+    // single-page-application restituiscono index.html (deep-link/refresh).
+    return c.env.ASSETS.fetch(c.req.raw);
   });
 }
