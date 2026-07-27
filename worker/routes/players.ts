@@ -9,12 +9,19 @@ import { players } from "../db/schema";
 
 const roleEnum = z.enum(["P", "D", "C", "A"]);
 
+const statsShape = {
+  fvm: z.number().int().min(0).optional(),
+  fantamedia: z.number().min(0).max(30).optional(),
+  presences: z.number().int().min(0).optional(),
+};
+
 const playerShape = {
   name: z.string().min(1).max(120),
   realTeam: z.string().min(1).max(80),
   role: roleEnum,
   baseQuotation: positiveInt.optional(),
   season,
+  ...statsShape,
 };
 
 const createSchema = z.object(playerShape);
@@ -32,6 +39,7 @@ const updateSchema = z
     role: roleEnum.optional(),
     baseQuotation: positiveInt.optional(),
     season: season.optional(),
+    ...statsShape,
   })
   .refine((data) => Object.keys(data).length > 0, {
     message: "Nessun campo da aggiornare",

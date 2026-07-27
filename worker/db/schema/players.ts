@@ -3,6 +3,7 @@ import {
   integer,
   pgEnum,
   pgTable,
+  real,
   text,
   timestamp,
   unique,
@@ -29,6 +30,11 @@ export const players = pgTable(
     role: playerRole("role").notNull(),
     baseQuotation: integer("base_quotation").notNull().default(1),
     season: text("season").notNull(),
+    // Statistiche opzionali dal listone ufficiale, usate per i consigli d'asta.
+    // fvm = Fantavalore di Mercato (valore su base budget 500).
+    fvm: integer("fvm"),
+    fantamedia: real("fantamedia"),
+    presences: integer("presences"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
