@@ -1,0 +1,3 @@
+# Variabili per lo sviluppo locale del Worker (`wrangler dev` / `npm run dev`).
+# Copia questo file in `.dev.vars` e inserisci la tua connection string Neon.
+DATABASE_URL="postgres://utente:password@host.neon.tech/db?sslmode=require"
