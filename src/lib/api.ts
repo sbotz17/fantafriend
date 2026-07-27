@@ -196,6 +196,19 @@ export const api = {
     baseQuotation?: number;
     season: string;
   }) => request<Player>("/players", { method: "POST", ...json(body) }),
+  bulkCreatePlayers: (
+    players: {
+      name: string;
+      realTeam: string;
+      role: Role;
+      baseQuotation?: number;
+      season: string;
+    }[],
+  ) =>
+    request<{ requested: number; inserted: number }>("/players/bulk", {
+      method: "POST",
+      ...json({ players }),
+    }),
 
   // Asta / rose / budget
   listRoster: (leagueId: string) =>

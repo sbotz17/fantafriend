@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
+import { ImportListone } from "../components/ImportListone";
 import { api, ApiError } from "../lib/api";
 import type { LeagueStatus, Role, RosterEntry } from "../lib/api";
 import { useLoad } from "../lib/useLoad";
@@ -354,6 +355,7 @@ export function LeaguePage() {
       {/* Listone */}
       <div className="section-title">
         <h2>Listone ({players.length})</h2>
+        <ImportListone season={league.season} onImported={reload} />
       </div>
       <div className="card">
         <form onSubmit={createPlayer}>
