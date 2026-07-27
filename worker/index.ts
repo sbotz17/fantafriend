@@ -1,5 +1,9 @@
+import { HTTPException } from "hono/http-exception";
+
 import { createRouter, dbMiddleware, registerErrorHandling } from "./lib/app";
+import { authMiddleware } from "./lib/auth";
 import { auctionRoutes } from "./routes/auction";
+import { authRoutes } from "./routes/auth";
 import { leaguesRoutes } from "./routes/leagues";
 import { organizationsRoutes } from "./routes/organizations";
 import { playersRoutes } from "./routes/players";
@@ -7,8 +11,20 @@ import { teamsRoutes } from "./routes/teams";
 
 const app = createRouter();
 
-// Istanzia il database per tutte le richieste API.
+// Per ogni richiesta API: istanzia il DB e aggancia l'eventuale utente.
 app.use("/api/*", dbMiddleware);
+app.use("/api/*", authMiddleware);
+
+// Guardia di autenticazione: tutto sotto /api richiede login tranne l'health
+// check e le rotte di autenticazione stesse.
+app.use("/api/*", async (c, next) => {
+  const path = c.req.path;
+  const isPublic = path === "/api/health" || path.startsWith("/api/auth/");
+  if (!isPublic && !c.get("user")) {
+    throw new HTTPException(401, { message: "Autenticazione richiesta" });
+  }
+  await next();
+});
 
 app.get("/api/health", (c) =>
   c.json({
@@ -19,6 +35,7 @@ app.get("/api/health", (c) =>
   }),
 );
 
+app.route("/api/auth", authRoutes);
 app.route("/api/organizations", organizationsRoutes);
 app.route("/api/leagues", leaguesRoutes);
 app.route("/api/players", playersRoutes);

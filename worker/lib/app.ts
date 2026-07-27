@@ -7,15 +7,23 @@ import type { Context } from "hono";
 import { createDatabase } from "../db/client";
 import type { Database } from "../db/client";
 
+/** Utente autenticato ricavato dalla sessione (senza dati sensibili). */
+export type SessionUser = {
+  id: string;
+  email: string;
+  name: string;
+};
+
 /**
  * Tipi condivisi dell'applicazione Hono.
  * - Bindings: variabili/secret disponibili su `c.env` (es. DATABASE_URL).
- * - Variables: valori impostati dai middleware su `c.set()` (es. `db`).
+ * - Variables: valori impostati dai middleware su `c.set()` (es. `db`, `user`).
  */
 export type AppEnv = {
   Bindings: Env;
   Variables: {
     db?: Database;
+    user?: SessionUser;
   };
 };
 
@@ -50,6 +58,18 @@ export function requireDb(c: Context<AppEnv>): Database {
     });
   }
   return db;
+}
+
+/**
+ * Recupera l'utente autenticato dal contesto, sollevando un 401 se la richiesta
+ * non è autenticata.
+ */
+export function requireUser(c: Context<AppEnv>): SessionUser {
+  const user = c.get("user");
+  if (!user) {
+    throw new HTTPException(401, { message: "Autenticazione richiesta" });
+  }
+  return user;
 }
 
 /** Estrae il codice errore SQLSTATE da un errore Postgres, se presente. */

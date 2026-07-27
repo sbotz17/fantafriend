@@ -15,6 +15,25 @@ Il Worker legge la connection string dal binding `DATABASE_URL`:
 Se manca, gli endpoint che usano il database rispondono `500` con
 `{"error":"DATABASE_URL non configurata sul Worker"}`.
 
+## Autenticazione
+
+L'autenticazione usa **sessioni server-side**: dopo signup/login il Worker
+imposta un cookie `ff_session` **HttpOnly** contenente un token opaco; nel
+database ne è salvato solo l'hash SHA-256 (tabella `sessions`). Le password sono
+protette con **PBKDF2-SHA256** (salt per utente).
+
+Tutte le rotte sotto `/api` **richiedono l'autenticazione**, tranne
+`/api/health` e `/api/auth/*`. Le richieste non autenticate ricevono `401`
+`{"error":"Autenticazione richiesta"}`. Il cookie viene inviato
+automaticamente dal browser; con `curl` usare `-c cookies.txt`/`-b cookies.txt`.
+
+| Metodo | Percorso | Descrizione |
+| --- | --- | --- |
+| POST | `/api/auth/signup` | Registra un utente. Body: `{ email, name, password }` (password min 8). Crea la sessione. |
+| POST | `/api/auth/login` | Accedi. Body: `{ email, password }`. Crea la sessione. `401` se credenziali errate. |
+| POST | `/api/auth/logout` | Chiude la sessione corrente e cancella il cookie. |
+| GET | `/api/auth/me` | Utente autenticato `{ id, email, name }`. |
+
 ## Convenzioni
 
 - Gli identificativi sono UUID.
