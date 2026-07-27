@@ -4,10 +4,13 @@ import { Link, useParams } from "react-router-dom";
 import { ImportListone } from "../components/ImportListone";
 import { api, ApiError } from "../lib/api";
 import type { LeagueStatus, Role, RosterEntry } from "../lib/api";
+import { rosterToCsv } from "../lib/csv";
 import { useLoad } from "../lib/useLoad";
-import { ROLE_LABELS, STATUS_LABELS } from "../lib/util";
+import { downloadFile, ROLE_LABELS, STATUS_LABELS } from "../lib/util";
 
 const ROLES: Role[] = ["P", "D", "C", "A"];
+type RoleFilter = Role | "all";
+type SortBy = "name" | "quotation";
 
 export function LeaguePage() {
   const { leagueId = "" } = useParams();
@@ -36,6 +39,10 @@ export function LeaguePage() {
   const [aTeam, setATeam] = useState("");
   const [aPlayer, setAPlayer] = useState("");
   const [aPrice, setAPrice] = useState(1);
+  // Filtri listone
+  const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
+  const [sortBy, setSortBy] = useState<SortBy>("name");
 
   const [actionError, setActionError] = useState<string | null>(null);
 
@@ -47,6 +54,39 @@ export function LeaguePage() {
     () => (data?.players ?? []).filter((p) => !ownedPlayerIds.has(p.id)),
     [data, ownedPlayerIds],
   );
+  // Mappa giocatore -> squadra che lo possiede (per lo stato nel listone).
+  const playerTeam = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const e of data?.roster ?? []) m.set(e.playerId, e.teamName);
+    return m;
+  }, [data]);
+  // Listone filtrato e ordinato.
+  const visiblePlayers = useMemo(() => {
+    let list = data?.players ?? [];
+    const q = search.trim().toLowerCase();
+    if (q) {
+      list = list.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.realTeam.toLowerCase().includes(q),
+      );
+    }
+    if (roleFilter !== "all") list = list.filter((p) => p.role === roleFilter);
+    return [...list].sort((a, b) =>
+      sortBy === "name"
+        ? a.name.localeCompare(b.name)
+        : b.baseQuotation - a.baseQuotation,
+    );
+  }, [data, search, roleFilter, sortBy]);
+  // Suggerimento budget per la squadra selezionata nell'aggiudicazione.
+  const teamBudgetHint = useMemo(() => {
+    if (!aTeam || !data) return null;
+    const t = data.budget.teams.find((x) => x.teamId === aTeam);
+    if (!t) return null;
+    const slotsToFillAfter = data.budget.slots.total - t.playersOwned - 1;
+    const maxBid = t.remaining - Math.max(0, slotsToFillAfter);
+    return { remaining: t.remaining, maxBid };
+  }, [aTeam, data]);
   const rosterByTeam = useMemo(() => {
     const map = new Map<string, RosterEntry[]>();
     for (const entry of data?.roster ?? []) {
@@ -112,6 +152,20 @@ export function LeaguePage() {
     setAPlayer(playerId);
     const p = availablePlayers.find((x) => x.id === playerId);
     if (p) setAPrice(p.baseQuotation);
+  };
+
+  // Precompila l'aggiudicazione dal listone e porta il focus sul form.
+  const assignFromRow = (playerId: string, quotation: number) => {
+    setAPlayer(playerId);
+    setAPrice(quotation);
+    document
+      .getElementById("assign-card")
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
+  const exportRoster = () => {
+    if (!data) return;
+    downloadFile(`rose-${data.league.slug}.csv`, rosterToCsv(data.roster));
   };
 
   if (loading) return <div className="alert info">Caricamento…</div>;
@@ -244,7 +298,7 @@ export function LeaguePage() {
       <div className="section-title">
         <h2>Aggiudica un giocatore</h2>
       </div>
-      <div className="card">
+      <div className="card" id="assign-card">
         {teams.length === 0 || availablePlayers.length === 0 ? (
           <div className="alert info">
             {teams.length === 0
@@ -298,6 +352,25 @@ export function LeaguePage() {
                 />
               </div>
             </div>
+            {teamBudgetHint && (
+              <p className="muted" style={{ margin: "0 0 0.75rem" }}>
+                Budget residuo: <strong>{teamBudgetHint.remaining}</strong> ·
+                Offerta massima consentita:{" "}
+                <strong
+                  style={{
+                    color:
+                      teamBudgetHint.maxBid < 1
+                        ? "var(--danger)"
+                        : "var(--primary)",
+                  }}
+                >
+                  {Math.max(0, teamBudgetHint.maxBid)}
+                </strong>{" "}
+                <span style={{ fontSize: "0.8rem" }}>
+                  (lasciando 1 credito per ogni slot da riempire)
+                </span>
+              </p>
+            )}
             <button className="primary" type="submit">
               Aggiudica
             </button>
@@ -310,6 +383,11 @@ export function LeaguePage() {
         <>
           <div className="section-title">
             <h2>Rose</h2>
+            {data.roster.length > 0 && (
+              <button className="ghost sm" onClick={exportRoster}>
+                Esporta CSV
+              </button>
+            )}
           </div>
           <div className="grid">
             {teams.map((team) => {
@@ -357,7 +435,98 @@ export function LeaguePage() {
         <h2>Listone ({players.length})</h2>
         <ImportListone season={league.season} onImported={reload} />
       </div>
+      <div className="card stack">
+        <div className="row">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Cerca nome o squadra…"
+            style={{ maxWidth: 240 }}
+          />
+          <select
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value as RoleFilter)}
+            style={{ maxWidth: 160 }}
+          >
+            <option value="all">Tutti i ruoli</option>
+            {ROLES.map((r) => (
+              <option key={r} value={r}>
+                {ROLE_LABELS[r]}
+              </option>
+            ))}
+          </select>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as SortBy)}
+            style={{ maxWidth: 180 }}
+          >
+            <option value="name">Ordina per nome</option>
+            <option value="quotation">Ordina per quotazione</option>
+          </select>
+          <span className="muted">{visiblePlayers.length} risultati</span>
+        </div>
+
+        {players.length === 0 ? (
+          <div className="alert info">
+            Listone vuoto: aggiungi giocatori qui sotto o importa un CSV.
+          </div>
+        ) : (
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Ruolo</th>
+                  <th>Nome</th>
+                  <th>Squadra</th>
+                  <th>Quot.</th>
+                  <th>Stato</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {visiblePlayers.map((p) => {
+                  const owner = playerTeam.get(p.id);
+                  return (
+                    <tr key={p.id}>
+                      <td>
+                        <span className={`badge ${p.role}`}>{p.role}</span>
+                      </td>
+                      <td>{p.name}</td>
+                      <td className="muted">{p.realTeam}</td>
+                      <td>{p.baseQuotation}</td>
+                      <td>
+                        {owner ? (
+                          <span className="muted">{owner}</span>
+                        ) : (
+                          <span style={{ color: "var(--primary)" }}>
+                            Disponibile
+                          </span>
+                        )}
+                      </td>
+                      <td style={{ textAlign: "right" }}>
+                        {!owner && teams.length > 0 && (
+                          <button
+                            className="sm"
+                            onClick={() =>
+                              assignFromRow(p.id, p.baseQuotation)
+                            }
+                          >
+                            Assegna
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Aggiungi giocatore */}
       <div className="card">
+        <h3>Aggiungi giocatore</h3>
         <form onSubmit={createPlayer}>
           <div className="field-row">
             <div>

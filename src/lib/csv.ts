@@ -1,4 +1,4 @@
-import type { Role } from "./api";
+import type { Role, RosterEntry } from "./api";
 
 export interface ParsedPlayer {
   name: string;
@@ -178,6 +178,25 @@ export function parseListone(text: string): ParseResult {
   });
 
   return { players, errors, totalRows: dataRows.length };
+}
+
+function csvCell(value: string | number): string {
+  const s = String(value);
+  return /[",;\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+/** Serializza la rosa della lega in CSV (una riga per giocatore acquistato). */
+export function rosterToCsv(rows: RosterEntry[]): string {
+  const header = ["Squadra", "Ruolo", "Giocatore", "Squadra reale", "Prezzo"];
+  const lines = [header.join(",")];
+  for (const r of rows) {
+    lines.push(
+      [r.teamName, r.role, r.playerName, r.realTeam, r.price]
+        .map(csvCell)
+        .join(","),
+    );
+  }
+  return lines.join("\n");
 }
 
 /** CSV di esempio scaricabile come modello. */

@@ -33,3 +33,18 @@ export const MEMBER_ROLE_LABELS: Record<string, string> = {
   admin: "Amministratore",
   member: "Membro",
 };
+
+/** Avvia il download di un file di testo generato lato client. */
+export function downloadFile(
+  filename: string,
+  content: string,
+  mime = "text/csv",
+): void {
+  const blob = new Blob([content], { type: `${mime};charset=utf-8` });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
