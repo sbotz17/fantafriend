@@ -150,7 +150,7 @@ export const api = {
   listOrganizations: () => request<Organization[]>("/organizations"),
   getOrganization: (id: string) =>
     request<Organization>(`/organizations/${id}`),
-  createOrganization: (body: { name: string; slug: string; ownerId: string }) =>
+  createOrganization: (body: { name: string; slug: string }) =>
     request<Organization>("/organizations", { method: "POST", ...json(body) }),
 
   // Leghe

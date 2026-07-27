@@ -1,16 +1,20 @@
 import { zValidator } from "@hono/zod-validator";
-import { eq } from "drizzle-orm";
+import { eq, getTableColumns } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import { z } from "zod";
 
-import { createRouter, requireDb } from "../lib/app";
+import { createRouter, requireDb, requireUser } from "../lib/app";
+import {
+  ADMIN_ROLES,
+  requireOrgMember,
+  requireOrgRole,
+} from "../lib/authz";
 import { idParam, slug } from "../lib/validation";
 import { organizationMembers, organizations } from "../db/schema";
 
 const createSchema = z.object({
   name: z.string().min(1).max(120),
   slug,
-  ownerId: z.uuid(),
 });
 
 const updateSchema = z
@@ -22,37 +26,39 @@ const updateSchema = z
     message: "Nessun campo da aggiornare",
   });
 
-const listQuery = z.object({ ownerId: z.uuid().optional() });
-
 export const organizationsRoutes = createRouter();
 
-// GET /api/organizations
-organizationsRoutes.get("/", zValidator("query", listQuery), async (c) => {
+// GET /api/organizations — solo le organizzazioni di cui l'utente è membro.
+organizationsRoutes.get("/", async (c) => {
   const db = requireDb(c);
-  const { ownerId } = c.req.valid("query");
+  const user = requireUser(c);
 
   const rows = await db
-    .select()
+    .select(getTableColumns(organizations))
     .from(organizations)
-    .where(ownerId ? eq(organizations.ownerId, ownerId) : undefined);
+    .innerJoin(
+      organizationMembers,
+      eq(organizationMembers.organizationId, organizations.id),
+    )
+    .where(eq(organizationMembers.userId, user.id));
 
   return c.json(rows);
 });
 
-// POST /api/organizations
+// POST /api/organizations — il creatore ne diventa proprietario e membro owner.
 organizationsRoutes.post("/", zValidator("json", createSchema), async (c) => {
   const db = requireDb(c);
+  const user = requireUser(c);
   const body = c.req.valid("json");
 
   const [organization] = await db
     .insert(organizations)
-    .values(body)
+    .values({ ...body, ownerId: user.id })
     .returning();
 
-  // Il proprietario diventa automaticamente membro con ruolo "owner".
   await db.insert(organizationMembers).values({
     organizationId: organization.id,
-    userId: body.ownerId,
+    userId: user.id,
     role: "owner",
   });
 
@@ -62,28 +68,33 @@ organizationsRoutes.post("/", zValidator("json", createSchema), async (c) => {
 // GET /api/organizations/:id
 organizationsRoutes.get("/:id", zValidator("param", idParam), async (c) => {
   const db = requireDb(c);
+  const user = requireUser(c);
   const { id } = c.req.valid("param");
 
   const [organization] = await db
     .select()
     .from(organizations)
     .where(eq(organizations.id, id));
-
   if (!organization) {
     throw new HTTPException(404, { message: "Organizzazione non trovata" });
   }
+  await requireOrgMember(db, id, user.id);
+
   return c.json(organization);
 });
 
-// PATCH /api/organizations/:id
+// PATCH /api/organizations/:id — solo owner/admin.
 organizationsRoutes.patch(
   "/:id",
   zValidator("param", idParam),
   zValidator("json", updateSchema),
   async (c) => {
     const db = requireDb(c);
+    const user = requireUser(c);
     const { id } = c.req.valid("param");
     const body = c.req.valid("json");
+
+    await requireOrgRole(db, id, user.id, ADMIN_ROLES);
 
     const [organization] = await db
       .update(organizations)
@@ -98,19 +109,15 @@ organizationsRoutes.patch(
   },
 );
 
-// DELETE /api/organizations/:id
+// DELETE /api/organizations/:id — solo owner.
 organizationsRoutes.delete("/:id", zValidator("param", idParam), async (c) => {
   const db = requireDb(c);
+  const user = requireUser(c);
   const { id } = c.req.valid("param");
 
-  const deleted = await db
-    .delete(organizations)
-    .where(eq(organizations.id, id))
-    .returning({ id: organizations.id });
+  await requireOrgRole(db, id, user.id, ["owner"]);
 
-  if (deleted.length === 0) {
-    throw new HTTPException(404, { message: "Organizzazione non trovata" });
-  }
+  await db.delete(organizations).where(eq(organizations.id, id));
   return c.body(null, 204);
 });
 
@@ -120,7 +127,10 @@ organizationsRoutes.get(
   zValidator("param", idParam),
   async (c) => {
     const db = requireDb(c);
+    const user = requireUser(c);
     const { id } = c.req.valid("param");
+
+    await requireOrgMember(db, id, user.id);
 
     const rows = await db
       .select()

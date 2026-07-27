@@ -34,6 +34,22 @@ automaticamente dal browser; con `curl` usare `-c cookies.txt`/`-b cookies.txt`.
 | POST | `/api/auth/logout` | Chiude la sessione corrente e cancella il cookie. |
 | GET | `/api/auth/me` | Utente autenticato `{ id, email, name }`. |
 
+### Autorizzazione (multi-tenant)
+
+L'accesso alle risorse è basato sull'appartenenza all'organizzazione
+(`organization_members`). Chi crea un'organizzazione ne diventa `owner`.
+
+- Le liste mostrano **solo** le risorse delle organizzazioni di cui sei membro
+  (es. `GET /api/organizations` restituisce solo le tue).
+- Leggere/modificare una lega, le sue squadre, il listone in asta e il budget
+  richiede di essere **membro** dell'organizzazione della lega; in caso
+  contrario la risposta è `403`.
+- Le operazioni amministrative (modifica/eliminazione di organizzazione o lega)
+  richiedono ruolo `owner`/`admin` (l'eliminazione dell'organizzazione solo
+  `owner`).
+- Il catalogo giocatori (`/api/players`) è una risorsa condivisa: leggibile e
+  modificabile da qualsiasi utente autenticato.
+
 ## Convenzioni
 
 - Gli identificativi sono UUID.
@@ -56,7 +72,7 @@ automaticamente dal browser; con `curl` usare `-c cookies.txt`/`-b cookies.txt`.
 | Metodo | Percorso | Descrizione |
 | --- | --- | --- |
 | GET | `/api/organizations?ownerId=` | Elenco (filtro opzionale per proprietario). |
-| POST | `/api/organizations` | Crea. Body: `{ name, slug, ownerId }`. Aggiunge il proprietario come membro `owner`. |
+| POST | `/api/organizations` | Crea. Body: `{ name, slug }`. L'utente autenticato ne diventa proprietario e membro `owner`. |
 | GET | `/api/organizations/:id` | Dettaglio. |
 | PATCH | `/api/organizations/:id` | Aggiorna `{ name?, slug? }`. |
 | DELETE | `/api/organizations/:id` | Elimina. |

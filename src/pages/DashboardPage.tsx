@@ -1,13 +1,11 @@
 import { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { useAuth } from "../auth/context";
 import { api, ApiError } from "../lib/api";
 import { useLoad } from "../lib/useLoad";
 import { slugify } from "../lib/util";
 
 export function DashboardPage() {
-  const { user } = useAuth();
   const loader = useCallback(() => api.listOrganizations(), []);
   const { data: orgs, error, loading, reload } = useLoad(loader);
 
@@ -24,11 +22,10 @@ export function DashboardPage() {
 
   const onCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
     setBusy(true);
     setFormError(null);
     try {
-      await api.createOrganization({ name, slug, ownerId: user.id });
+      await api.createOrganization({ name, slug });
       setName("");
       setSlug("");
       setSlugEdited(false);

@@ -3,9 +3,10 @@ import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import { z } from "zod";
 
-import { createRouter, requireDb } from "../lib/app";
+import { createRouter, requireDb, requireUser } from "../lib/app";
+import { requireLeagueMember } from "../lib/authz";
 import { idParam } from "../lib/validation";
-import { fantasyTeams, leagues, players, rosterEntries } from "../db/schema";
+import { fantasyTeams, players, rosterEntries } from "../db/schema";
 
 const leagueParam = z.object({ leagueId: z.uuid() });
 
@@ -26,13 +27,33 @@ const updateSchema = z
 
 export const teamsRoutes = createRouter();
 
+/** Carica una squadra verificando l'accesso alla sua lega. */
+async function loadTeamWithAccess(
+  db: ReturnType<typeof requireDb>,
+  teamId: string,
+  userId: string,
+) {
+  const [team] = await db
+    .select()
+    .from(fantasyTeams)
+    .where(eq(fantasyTeams.id, teamId));
+  if (!team) {
+    throw new HTTPException(404, { message: "Squadra non trovata" });
+  }
+  const { league } = await requireLeagueMember(db, team.leagueId, userId);
+  return { team, league };
+}
+
 // GET /api/leagues/:leagueId/teams
 teamsRoutes.get(
   "/leagues/:leagueId/teams",
   zValidator("param", leagueParam),
   async (c) => {
     const db = requireDb(c);
+    const user = requireUser(c);
     const { leagueId } = c.req.valid("param");
+
+    await requireLeagueMember(db, leagueId, user.id);
 
     const rows = await db
       .select()
@@ -50,16 +71,11 @@ teamsRoutes.post(
   zValidator("json", createSchema),
   async (c) => {
     const db = requireDb(c);
+    const user = requireUser(c);
     const { leagueId } = c.req.valid("param");
     const body = c.req.valid("json");
 
-    const [league] = await db
-      .select({ id: leagues.id })
-      .from(leagues)
-      .where(eq(leagues.id, leagueId));
-    if (!league) {
-      throw new HTTPException(404, { message: "Lega non trovata" });
-    }
+    await requireLeagueMember(db, leagueId, user.id);
 
     const [team] = await db
       .insert(fantasyTeams)
@@ -73,20 +89,10 @@ teamsRoutes.post(
 // GET /api/teams/:id — dettaglio con rosa e budget residuo.
 teamsRoutes.get("/teams/:id", zValidator("param", idParam), async (c) => {
   const db = requireDb(c);
+  const user = requireUser(c);
   const { id } = c.req.valid("param");
 
-  const [team] = await db
-    .select()
-    .from(fantasyTeams)
-    .where(eq(fantasyTeams.id, id));
-  if (!team) {
-    throw new HTTPException(404, { message: "Squadra non trovata" });
-  }
-
-  const [league] = await db
-    .select({ budget: leagues.budget })
-    .from(leagues)
-    .where(eq(leagues.id, team.leagueId));
+  const { team, league } = await loadTeamWithAccess(db, id, user.id);
 
   const roster = await db
     .select({
@@ -102,7 +108,7 @@ teamsRoutes.get("/teams/:id", zValidator("param", idParam), async (c) => {
     .where(eq(rosterEntries.fantasyTeamId, id));
 
   const spent = roster.reduce((sum, r) => sum + r.price, 0);
-  const total = league?.budget ?? 0;
+  const total = league.budget;
 
   return c.json({
     ...team,
@@ -118,8 +124,11 @@ teamsRoutes.patch(
   zValidator("json", updateSchema),
   async (c) => {
     const db = requireDb(c);
+    const user = requireUser(c);
     const { id } = c.req.valid("param");
     const body = c.req.valid("json");
+
+    await loadTeamWithAccess(db, id, user.id);
 
     const [team] = await db
       .update(fantasyTeams)
@@ -127,9 +136,6 @@ teamsRoutes.patch(
       .where(eq(fantasyTeams.id, id))
       .returning();
 
-    if (!team) {
-      throw new HTTPException(404, { message: "Squadra non trovata" });
-    }
     return c.json(team);
   },
 );
@@ -137,15 +143,11 @@ teamsRoutes.patch(
 // DELETE /api/teams/:id
 teamsRoutes.delete("/teams/:id", zValidator("param", idParam), async (c) => {
   const db = requireDb(c);
+  const user = requireUser(c);
   const { id } = c.req.valid("param");
 
-  const deleted = await db
-    .delete(fantasyTeams)
-    .where(eq(fantasyTeams.id, id))
-    .returning({ id: fantasyTeams.id });
+  await loadTeamWithAccess(db, id, user.id);
 
-  if (deleted.length === 0) {
-    throw new HTTPException(404, { message: "Squadra non trovata" });
-  }
+  await db.delete(fantasyTeams).where(eq(fantasyTeams.id, id));
   return c.body(null, 204);
 });

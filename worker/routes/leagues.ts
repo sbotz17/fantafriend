@@ -1,11 +1,22 @@
 import { zValidator } from "@hono/zod-validator";
-import { eq } from "drizzle-orm";
+import { eq, getTableColumns } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import { z } from "zod";
 
-import { createRouter, requireDb } from "../lib/app";
-import { idParam, nonNegativeInt, positiveInt, season, slug } from "../lib/validation";
-import { leagues } from "../db/schema";
+import { createRouter, requireDb, requireUser } from "../lib/app";
+import {
+  ADMIN_ROLES,
+  requireLeagueMember,
+  requireOrgMember,
+} from "../lib/authz";
+import {
+  idParam,
+  nonNegativeInt,
+  positiveInt,
+  season,
+  slug,
+} from "../lib/validation";
+import { leagues, organizationMembers } from "../db/schema";
 
 const statusEnum = z.enum(["setup", "auction", "completed"]);
 
@@ -43,25 +54,40 @@ const listQuery = z.object({ organizationId: z.uuid().optional() });
 
 export const leaguesRoutes = createRouter();
 
-// GET /api/leagues
+// GET /api/leagues — leghe delle organizzazioni di cui l'utente è membro.
 leaguesRoutes.get("/", zValidator("query", listQuery), async (c) => {
   const db = requireDb(c);
+  const user = requireUser(c);
   const { organizationId } = c.req.valid("query");
 
-  const rows = await db
-    .select()
-    .from(leagues)
-    .where(
-      organizationId ? eq(leagues.organizationId, organizationId) : undefined,
-    );
+  if (organizationId) {
+    await requireOrgMember(db, organizationId, user.id);
+    const rows = await db
+      .select()
+      .from(leagues)
+      .where(eq(leagues.organizationId, organizationId));
+    return c.json(rows);
+  }
 
+  // Senza filtro: tutte le leghe delle organizzazioni dell'utente.
+  const rows = await db
+    .select(getTableColumns(leagues))
+    .from(leagues)
+    .innerJoin(
+      organizationMembers,
+      eq(organizationMembers.organizationId, leagues.organizationId),
+    )
+    .where(eq(organizationMembers.userId, user.id));
   return c.json(rows);
 });
 
-// POST /api/leagues
+// POST /api/leagues — richiede l'appartenenza all'organizzazione.
 leaguesRoutes.post("/", zValidator("json", createSchema), async (c) => {
   const db = requireDb(c);
+  const user = requireUser(c);
   const body = c.req.valid("json");
+
+  await requireOrgMember(db, body.organizationId, user.id);
 
   const [league] = await db.insert(leagues).values(body).returning();
   return c.json(league, 201);
@@ -70,50 +96,54 @@ leaguesRoutes.post("/", zValidator("json", createSchema), async (c) => {
 // GET /api/leagues/:id
 leaguesRoutes.get("/:id", zValidator("param", idParam), async (c) => {
   const db = requireDb(c);
+  const user = requireUser(c);
   const { id } = c.req.valid("param");
 
-  const [league] = await db.select().from(leagues).where(eq(leagues.id, id));
-  if (!league) {
-    throw new HTTPException(404, { message: "Lega non trovata" });
-  }
+  const { league } = await requireLeagueMember(db, id, user.id);
   return c.json(league);
 });
 
-// PATCH /api/leagues/:id
+// PATCH /api/leagues/:id — solo owner/admin dell'organizzazione.
 leaguesRoutes.patch(
   "/:id",
   zValidator("param", idParam),
   zValidator("json", updateSchema),
   async (c) => {
     const db = requireDb(c);
+    const user = requireUser(c);
     const { id } = c.req.valid("param");
     const body = c.req.valid("json");
 
-    const [league] = await db
+    const { role } = await requireLeagueMember(db, id, user.id);
+    if (!ADMIN_ROLES.includes(role)) {
+      throw new HTTPException(403, {
+        message: "Permessi insufficienti per modificare la lega",
+      });
+    }
+
+    const [updated] = await db
       .update(leagues)
       .set({ ...body, updatedAt: new Date() })
       .where(eq(leagues.id, id))
       .returning();
 
-    if (!league) {
-      throw new HTTPException(404, { message: "Lega non trovata" });
-    }
-    return c.json(league);
+    return c.json(updated);
   },
 );
 
-// DELETE /api/leagues/:id
+// DELETE /api/leagues/:id — solo owner/admin dell'organizzazione.
 leaguesRoutes.delete("/:id", zValidator("param", idParam), async (c) => {
   const db = requireDb(c);
+  const user = requireUser(c);
   const { id } = c.req.valid("param");
 
-  const deleted = await db
-    .delete(leagues)
-    .where(eq(leagues.id, id))
-    .returning({ id: leagues.id });
-
-  if (deleted.length === 0) {
-    throw new HTTPException(404, { message: "Lega non trovata" });
+  const { role } = await requireLeagueMember(db, id, user.id);
+  if (!ADMIN_ROLES.includes(role)) {
+    throw new HTTPException(403, {
+      message: "Permessi insufficienti per eliminare la lega",
+    });
   }
+
+  await db.delete(leagues).where(eq(leagues.id, id));
   return c.body(null, 204);
 });

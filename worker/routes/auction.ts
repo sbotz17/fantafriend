@@ -3,15 +3,10 @@ import { and, desc, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import { z } from "zod";
 
-import { createRouter, requireDb } from "../lib/app";
+import { createRouter, requireDb, requireUser } from "../lib/app";
+import { requireLeagueMember } from "../lib/authz";
 import { idParam, positiveInt } from "../lib/validation";
-import {
-  bids,
-  fantasyTeams,
-  leagues,
-  players,
-  rosterEntries,
-} from "../db/schema";
+import { bids, fantasyTeams, players, rosterEntries } from "../db/schema";
 
 const leagueParam = z.object({ leagueId: z.uuid() });
 
@@ -62,16 +57,11 @@ auctionRoutes.post(
   zValidator("json", assignSchema),
   async (c) => {
     const db = requireDb(c);
+    const user = requireUser(c);
     const { leagueId } = c.req.valid("param");
     const { fantasyTeamId, playerId, price } = c.req.valid("json");
 
-    const [league] = await db
-      .select()
-      .from(leagues)
-      .where(eq(leagues.id, leagueId));
-    if (!league) {
-      throw new HTTPException(404, { message: "Lega non trovata" });
-    }
+    const { league } = await requireLeagueMember(db, leagueId, user.id);
     if (league.status === "completed") {
       throw new HTTPException(400, {
         message: "L'asta è chiusa: impossibile aggiudicare giocatori",
@@ -153,7 +143,10 @@ auctionRoutes.get(
   zValidator("param", leagueParam),
   async (c) => {
     const db = requireDb(c);
+    const user = requireUser(c);
     const { leagueId } = c.req.valid("param");
+
+    await requireLeagueMember(db, leagueId, user.id);
 
     const rows = await db
       .select({
@@ -181,16 +174,19 @@ auctionRoutes.get(
 // DELETE /api/roster/:id — svincola un giocatore (annulla l'aggiudicazione).
 auctionRoutes.delete("/roster/:id", zValidator("param", idParam), async (c) => {
   const db = requireDb(c);
+  const user = requireUser(c);
   const { id } = c.req.valid("param");
 
-  const deleted = await db
-    .delete(rosterEntries)
-    .where(eq(rosterEntries.id, id))
-    .returning({ id: rosterEntries.id });
-
-  if (deleted.length === 0) {
+  const [entry] = await db
+    .select({ leagueId: rosterEntries.leagueId })
+    .from(rosterEntries)
+    .where(eq(rosterEntries.id, id));
+  if (!entry) {
     throw new HTTPException(404, { message: "Acquisto non trovato" });
   }
+  await requireLeagueMember(db, entry.leagueId, user.id);
+
+  await db.delete(rosterEntries).where(eq(rosterEntries.id, id));
   return c.body(null, 204);
 });
 
@@ -200,15 +196,10 @@ auctionRoutes.get(
   zValidator("param", leagueParam),
   async (c) => {
     const db = requireDb(c);
+    const user = requireUser(c);
     const { leagueId } = c.req.valid("param");
 
-    const [league] = await db
-      .select()
-      .from(leagues)
-      .where(eq(leagues.id, leagueId));
-    if (!league) {
-      throw new HTTPException(404, { message: "Lega non trovata" });
-    }
+    const { league } = await requireLeagueMember(db, leagueId, user.id);
 
     const teams = await db
       .select()
@@ -232,9 +223,7 @@ auctionRoutes.get(
       league.slotsForward;
 
     const summary = teams.map((team) => {
-      const teamEntries = entries.filter(
-        (e) => e.fantasyTeamId === team.id,
-      );
+      const teamEntries = entries.filter((e) => e.fantasyTeamId === team.id);
       const spent = teamEntries.reduce((sum, e) => sum + e.price, 0);
       const countByRole = { P: 0, D: 0, C: 0, A: 0 };
       for (const e of teamEntries) {
@@ -273,8 +262,11 @@ auctionRoutes.post(
   zValidator("json", bidSchema),
   async (c) => {
     const db = requireDb(c);
+    const user = requireUser(c);
     const { leagueId } = c.req.valid("param");
     const body = c.req.valid("json");
+
+    await requireLeagueMember(db, leagueId, user.id);
 
     const [bid] = await db
       .insert(bids)
@@ -292,8 +284,11 @@ auctionRoutes.get(
   zValidator("query", bidQuery),
   async (c) => {
     const db = requireDb(c);
+    const user = requireUser(c);
     const { leagueId } = c.req.valid("param");
     const { playerId } = c.req.valid("query");
+
+    await requireLeagueMember(db, leagueId, user.id);
 
     const filters = [
       eq(bids.leagueId, leagueId),
