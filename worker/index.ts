@@ -4,6 +4,7 @@ import { createRouter, dbMiddleware, registerErrorHandling } from "./lib/app";
 import { authMiddleware } from "./lib/auth";
 import { auctionRoutes } from "./routes/auction";
 import { authRoutes } from "./routes/auth";
+import { invitationsRoutes } from "./routes/invitations";
 import { leaguesRoutes } from "./routes/leagues";
 import { organizationsRoutes } from "./routes/organizations";
 import { playersRoutes } from "./routes/players";
@@ -42,6 +43,7 @@ app.route("/api/players", playersRoutes);
 // Rotte con prefissi misti (es. /api/leagues/:leagueId/teams e /api/teams/:id).
 app.route("/api", teamsRoutes);
 app.route("/api", auctionRoutes);
+app.route("/api", invitationsRoutes);
 
 registerErrorHandling(app);
 

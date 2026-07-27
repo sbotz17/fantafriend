@@ -76,7 +76,22 @@ L'accesso alle risorse è basato sull'appartenenza all'organizzazione
 | GET | `/api/organizations/:id` | Dettaglio. |
 | PATCH | `/api/organizations/:id` | Aggiorna `{ name?, slug? }`. |
 | DELETE | `/api/organizations/:id` | Elimina. |
-| GET | `/api/organizations/:id/members` | Membri dell'organizzazione. |
+| GET | `/api/organizations/:id/members` | Membri (con nome/email/ruolo). Richiede appartenenza. |
+| PATCH | `/api/organizations/:id/members/:userId` | Cambia ruolo `{ role }` (admin/member). Owner/admin; non sul proprietario. |
+| DELETE | `/api/organizations/:id/members/:userId` | Rimuove un membro. Owner/admin; non il proprietario. |
+
+## Inviti
+
+Inviti con token, senza email: chi invita ottiene un token (link condivisibile)
+di cui in DB è salvato solo l'hash. Validità 14 giorni.
+
+| Metodo | Percorso | Descrizione |
+| --- | --- | --- |
+| POST | `/api/organizations/:id/invitations` | Crea un invito. Body: `{ email?, role? }` (admin/member). Owner/admin. La risposta include il `token` (mostrato una sola volta). |
+| GET | `/api/organizations/:id/invitations` | Inviti in sospeso. Owner/admin. |
+| DELETE | `/api/invitations/:id` | Revoca un invito. Owner/admin dell'org. |
+| GET | `/api/invitations/token/:token` | Anteprima invito (nome org, ruolo, validità). |
+| POST | `/api/invitations/accept` | L'utente autenticato accetta. Body: `{ token }`. Diventa membro con il ruolo dell'invito. |
 
 ## Leghe
 

@@ -21,3 +21,15 @@ export const STATUS_LABELS: Record<string, string> = {
   auction: "Asta in corso",
   completed: "Completata",
 };
+
+export const ROLE_BADGE: Record<string, string> = {
+  owner: "role-owner",
+  admin: "role-admin",
+  member: "role-member",
+};
+
+export const MEMBER_ROLE_LABELS: Record<string, string> = {
+  owner: "Proprietario",
+  admin: "Amministratore",
+  member: "Membro",
+};

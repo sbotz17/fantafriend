@@ -1,19 +1,28 @@
 import { useCallback, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
+import { useAuth } from "../auth/context";
+import { MembersAndInvites } from "../components/MembersAndInvites";
 import { api, ApiError } from "../lib/api";
 import { useLoad } from "../lib/useLoad";
 import { slugify, STATUS_LABELS } from "../lib/util";
 
 export function OrganizationPage() {
   const { orgId = "" } = useParams();
-  const loader = useCallback(
-    async () => ({
-      org: await api.getOrganization(orgId),
-      leagues: await api.listLeagues(orgId),
-    }),
-    [orgId],
-  );
+  const { user } = useAuth();
+  const loader = useCallback(async () => {
+    const [org, leagues, members] = await Promise.all([
+      api.getOrganization(orgId),
+      api.listLeagues(orgId),
+      api.listMembers(orgId),
+    ]);
+    const myRole = members.find((m) => m.userId === user?.id)?.role;
+    const invitations =
+      myRole === "owner" || myRole === "admin"
+        ? await api.listInvitations(orgId)
+        : [];
+    return { org, leagues, members, invitations, myRole };
+  }, [orgId, user?.id]);
   const { data, error, loading, reload } = useLoad(loader);
 
   const [name, setName] = useState("");
@@ -174,6 +183,18 @@ export function OrganizationPage() {
           ))}
         </div>
       )}
+
+      <div className="section-title">
+        <h2>Membri</h2>
+      </div>
+      <MembersAndInvites
+        orgId={orgId}
+        currentUserId={user?.id ?? ""}
+        myRole={data.myRole}
+        members={data.members}
+        invitations={data.invitations}
+        onChange={reload}
+      />
     </div>
   );
 }

@@ -1,4 +1,10 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router-dom";
 
 import type { ReactNode } from "react";
 
@@ -6,6 +12,7 @@ import { AuthProvider } from "./auth/AuthProvider";
 import { useAuth } from "./auth/context";
 import { Layout } from "./components/Layout";
 import { DashboardPage } from "./pages/DashboardPage";
+import { InvitePage } from "./pages/InvitePage";
 import { LeaguePage } from "./pages/LeaguePage";
 import { LoginPage } from "./pages/LoginPage";
 import { OrganizationPage } from "./pages/OrganizationPage";
@@ -13,11 +20,13 @@ import { RegisterPage } from "./pages/RegisterPage";
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
   if (loading) {
     return <div className="loading">Caricamento…</div>;
   }
   if (!user) {
-    return <Navigate to="/login" replace />;
+    // Ricorda la destinazione per tornarci dopo il login (es. link d'invito).
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
   return <>{children}</>;
 }
@@ -65,6 +74,14 @@ export default function App() {
             <Route path="/organizations/:orgId" element={<OrganizationPage />} />
             <Route path="/leagues/:leagueId" element={<LeaguePage />} />
           </Route>
+          <Route
+            path="/invite/:token"
+            element={
+              <ProtectedRoute>
+                <InvitePage />
+              </ProtectedRoute>
+            }
+          />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

@@ -220,6 +220,9 @@ th {
 .badge.status-setup { color: var(--warning); }
 .badge.status-auction { color: var(--primary); }
 .badge.status-completed { color: var(--text-muted); }
+.badge.role-owner { color: var(--primary); }
+.badge.role-admin { color: var(--warning); }
+.badge.role-member { color: var(--text-muted); }
 
 /* Feedback */
 .alert {

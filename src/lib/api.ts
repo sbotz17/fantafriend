@@ -63,6 +63,39 @@ export interface User {
   name: string;
 }
 
+export type MemberRole = "owner" | "admin" | "member";
+
+export interface Member {
+  userId: string;
+  role: MemberRole;
+  name: string;
+  email: string;
+  createdAt: string;
+}
+
+export interface Invitation {
+  id: string;
+  organizationId: string;
+  email: string | null;
+  role: "admin" | "member";
+  status: string;
+  expiresAt: string;
+  createdAt: string;
+}
+
+export interface InvitationWithToken extends Invitation {
+  token: string;
+}
+
+export interface InvitationPreview {
+  organizationId: string;
+  organizationName: string;
+  role: MemberRole;
+  email: string | null;
+  status: string;
+  valid: boolean;
+}
+
 export interface Organization {
   id: string;
   name: string;
@@ -152,6 +185,40 @@ export const api = {
     request<Organization>(`/organizations/${id}`),
   createOrganization: (body: { name: string; slug: string }) =>
     request<Organization>("/organizations", { method: "POST", ...json(body) }),
+
+  // Membri
+  listMembers: (orgId: string) =>
+    request<Member[]>(`/organizations/${orgId}/members`),
+  updateMemberRole: (orgId: string, userId: string, role: "admin" | "member") =>
+    request<unknown>(`/organizations/${orgId}/members/${userId}`, {
+      method: "PATCH",
+      ...json({ role }),
+    }),
+  removeMember: (orgId: string, userId: string) =>
+    request<void>(`/organizations/${orgId}/members/${userId}`, {
+      method: "DELETE",
+    }),
+
+  // Inviti
+  createInvitation: (
+    orgId: string,
+    body: { email?: string; role: "admin" | "member" },
+  ) =>
+    request<InvitationWithToken>(`/organizations/${orgId}/invitations`, {
+      method: "POST",
+      ...json(body),
+    }),
+  listInvitations: (orgId: string) =>
+    request<Invitation[]>(`/organizations/${orgId}/invitations`),
+  revokeInvitation: (invitationId: string) =>
+    request<void>(`/invitations/${invitationId}`, { method: "DELETE" }),
+  getInvitationPreview: (token: string) =>
+    request<InvitationPreview>(`/invitations/token/${token}`),
+  acceptInvitation: (token: string) =>
+    request<Organization>("/invitations/accept", {
+      method: "POST",
+      ...json({ token }),
+    }),
 
   // Leghe
   listLeagues: (organizationId: string) =>
