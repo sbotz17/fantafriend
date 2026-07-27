@@ -3,6 +3,11 @@
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.worker.tsbuildinfo",
     "types": ["./worker-configuration.d.ts", "vite/client"],
+    // Il worker è impacchettato dal plugin Cloudflare/Vite: usiamo la
+    // risoluzione "bundler" (come tsconfig.app.json) così gli import
+    // relativi non richiedono l'estensione esplicita del file.
+    "module": "esnext",
+    "moduleResolution": "bundler",
   },
   "include": ["worker"]
 }
