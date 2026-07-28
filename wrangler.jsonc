@@ -17,6 +17,13 @@
 	"upload_source_maps": true,
 	"compatibility_flags": [
 		"nodejs_compat"
+	],
+	// Domini personalizzati (apex + www). Richiedono che la zona fantami.it sia
+	// attiva sul tuo account Cloudflare. Al deploy Wrangler crea record DNS e
+	// certificati automaticamente.
+	"routes": [
+		{ "pattern": "fantami.it", "custom_domain": true },
+		{ "pattern": "www.fantami.it", "custom_domain": true }
 	]
 	/**
 	 * Smart Placement
