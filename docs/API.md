@@ -80,6 +80,40 @@ L'accesso alle risorse è basato sull'appartenenza all'organizzazione
 | PATCH | `/api/organizations/:id/members/:userId` | Cambia ruolo `{ role }` (admin/member). Owner/admin; non sul proprietario. |
 | DELETE | `/api/organizations/:id/members/:userId` | Rimuove un membro. Owner/admin; non il proprietario. |
 
+## Consigli d'asta
+
+Motore di valutazione: calcola quanto vale un giocatore **per una squadra
+specifica** in un preciso momento dell'asta, combinando il valore di mercato
+(FVM riportato al budget della lega), la scarsità del ruolo e il budget
+residuo — sempre lasciando 1 credito per ogni slot ancora da riempire.
+
+| Metodo | Percorso | Descrizione |
+| --- | --- | --- |
+| GET | `/api/leagues/:leagueId/recommendations?fantasyTeamId=&limit=` | Chi conviene chiamare adesso, in ordine di priorità, con soglia massima per ciascuno. |
+| POST | `/api/leagues/:leagueId/evaluate` | Verdetto immediato sul giocatore all'asta. Body: `{ fantasyTeamId, playerName, realTeam?, currentBid? }`. |
+
+`evaluate` accetta il **nome così com'è letto** dalla pagina d'asta: il
+matching è tollerante a maiuscole, accenti, solo cognome e refusi, e rifiuta i
+match troppo incerti invece di indovinare. Risposta:
+
+```jsonc
+{
+  "matched": true,
+  "confidence": 0.95,
+  "player": { "id": "…", "name": "Lautaro Martinez", "realTeam": "Inter", "role": "A" },
+  "currentBid": 100,
+  "fairValue": 120,      // valore nella tua lega
+  "maxBid": 128,         // soglia massima consigliata
+  "verdict": "conviene", // conviene | limite | lascia | non_serve
+  "advice": "Rilancia: conviene fino a 128.",
+  "budgetRemaining": 500
+}
+```
+
+Questi endpoint sono usati dall'**estensione Chrome** (cartella `extension/`),
+che legge giocatore e offerta dalla pagina d'asta e mostra il verdetto in
+tempo reale. Vedi `extension/README.md`.
+
 ## Inviti
 
 Inviti con token, senza email: chi invita ottiene un token (link condivisibile)

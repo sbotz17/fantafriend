@@ -8,6 +8,7 @@ import { invitationsRoutes } from "./routes/invitations";
 import { leaguesRoutes } from "./routes/leagues";
 import { organizationsRoutes } from "./routes/organizations";
 import { playersRoutes } from "./routes/players";
+import { recommendationsRoutes } from "./routes/recommendations";
 import { teamsRoutes } from "./routes/teams";
 
 const app = createRouter();
@@ -44,6 +45,7 @@ app.route("/api/players", playersRoutes);
 app.route("/api", teamsRoutes);
 app.route("/api", auctionRoutes);
 app.route("/api", invitationsRoutes);
+app.route("/api", recommendationsRoutes);
 
 registerErrorHandling(app);
 

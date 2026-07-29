@@ -1,0 +1,163 @@
+/* Pannello fluttuante e selettore visuale iniettati nella pagina d'asta.
+   Gli stili sono volutamente specifici e con !important dove serve, per non
+   essere sovrascritti dal CSS del sito ospite. */
+
+#fantafriend-panel {
+  position: fixed !important;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2147483647 !important;
+  width: 280px;
+  background: #1a2130;
+  color: #e6ebf5;
+  border: 1px solid #2d3850;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  line-height: 1.35;
+  overflow: hidden;
+}
+
+#fantafriend-panel .ff-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #222b3d;
+  border-bottom: 1px solid #2d3850;
+}
+#fantafriend-panel .ff-logo {
+  font-weight: 700;
+  font-size: 13px;
+}
+#fantafriend-panel .ff-logo b {
+  color: #4ade80;
+}
+#fantafriend-panel .ff-close {
+  background: none;
+  border: none;
+  color: #94a1bd;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+}
+
+#fantafriend-panel .ff-body {
+  padding: 12px;
+}
+#fantafriend-panel .ff-idle,
+#fantafriend-panel .ff-note {
+  color: #94a1bd;
+  font-size: 12px;
+}
+#fantafriend-panel .ff-error {
+  color: #f87171;
+  font-size: 12px;
+}
+
+#fantafriend-panel .ff-player {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+#fantafriend-panel .ff-name {
+  font-weight: 700;
+}
+#fantafriend-panel .ff-team {
+  color: #94a1bd;
+  font-size: 12px;
+}
+#fantafriend-panel .ff-role {
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid #2d3850;
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+#fantafriend-panel .ff-role-P { color: #fbbf24; }
+#fantafriend-panel .ff-role-D { color: #60a5fa; }
+#fantafriend-panel .ff-role-C { color: #4ade80; }
+#fantafriend-panel .ff-role-A { color: #f87171; }
+
+#fantafriend-panel .ff-verdict {
+  text-align: center;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 8px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+#fantafriend-panel .ff-ok {
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+}
+#fantafriend-panel .ff-warn {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+}
+#fantafriend-panel .ff-no {
+  background: rgba(248, 113, 113, 0.15);
+  color: #f87171;
+}
+
+#fantafriend-panel .ff-numbers {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+#fantafriend-panel .ff-numbers > div {
+  flex: 1;
+  text-align: center;
+  background: #222b3d;
+  border-radius: 8px;
+  padding: 6px 4px;
+}
+#fantafriend-panel .ff-numbers span {
+  display: block;
+  font-size: 10px;
+  color: #94a1bd;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+#fantafriend-panel .ff-numbers b {
+  font-size: 17px;
+}
+#fantafriend-panel .ff-max {
+  color: #4ade80;
+}
+#fantafriend-panel .ff-advice {
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+/* Selettore visuale */
+body.ff-picking,
+body.ff-picking * {
+  cursor: crosshair !important;
+}
+.ff-pick-hover {
+  outline: 2px solid #4ade80 !important;
+  outline-offset: 1px;
+  background: rgba(74, 222, 128, 0.15) !important;
+}
+#ff-hint {
+  position: fixed !important;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2147483647 !important;
+  background: #4ade80;
+  color: #06240f;
+  font-family: system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 10px 16px;
+  border-radius: 999px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
