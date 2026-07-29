@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "FantaFriend — Assistente d'asta",
+  "version": "0.1.0",
+  "description": "Legge il giocatore e l'offerta correnti dalla pagina d'asta e mostra subito la soglia massima consigliata.",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": [
+    "https://fantami.it/*",
+    "https://www.fantami.it/*",
+    "http://localhost/*",
+    "http://127.0.0.1/*",
+    "https://*.app.github.dev/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "FantaFriend"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.fantalab.it/*"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}

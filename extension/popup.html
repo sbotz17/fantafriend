@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <h1>Fanta<b>Friend</b></h1>
+
+    <label for="apiBase">Indirizzo FantaFriend</label>
+    <input id="apiBase" type="text" placeholder="https://fantami.it" />
+
+    <label for="league">Lega</label>
+    <select id="league"><option value="">— carica le leghe —</option></select>
+
+    <label for="team">La tua squadra</label>
+    <select id="team"><option value="">— scegli la lega —</option></select>
+
+    <button id="reload" class="ghost">Ricarica leghe</button>
+
+    <hr />
+
+    <p class="hint">
+      Apri la pagina d'asta di Fantalab, poi indica dove leggere i dati:
+    </p>
+    <button id="pickPlayer" class="primary">1. Indica il nome del giocatore</button>
+    <button id="pickBid" class="primary">2. Indica l'offerta corrente</button>
+
+    <div id="status" class="status"></div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
