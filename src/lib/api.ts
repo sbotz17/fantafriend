@@ -150,6 +150,41 @@ export interface RosterEntry {
   role: Role;
 }
 
+export type Verdict = "conviene" | "limite" | "lascia" | "non_serve";
+
+export interface Suggestion {
+  playerId: string;
+  name: string;
+  realTeam: string;
+  role: Role;
+  fairValue: number;
+  maxBid: number;
+  reason: string;
+  score: number;
+}
+
+export interface Recommendations {
+  budgetRemaining: number;
+  ownedByRole: Record<Role, number>;
+  suggestions: Suggestion[];
+}
+
+export interface Evaluation {
+  matched: boolean;
+  /** Presente quando il nome non è stato riconosciuto. */
+  query?: string;
+  message?: string;
+  confidence?: number;
+  player?: { id: string; name: string; realTeam: string; role: Role };
+  currentBid?: number | null;
+  fairValue?: number;
+  maxBid?: number;
+  verdict?: Verdict;
+  advice?: string;
+  reason?: string;
+  budgetRemaining?: number;
+}
+
 export interface BudgetSummary {
   leagueId: string;
   budget: number;
@@ -292,4 +327,23 @@ export const api = {
     request<void>(`/roster/${rosterEntryId}`, { method: "DELETE" }),
   getBudget: (leagueId: string) =>
     request<BudgetSummary>(`/leagues/${leagueId}/budget`),
+
+  // Consigli d'asta
+  getRecommendations: (leagueId: string, fantasyTeamId: string, limit = 8) =>
+    request<Recommendations>(
+      `/leagues/${leagueId}/recommendations?fantasyTeamId=${fantasyTeamId}&limit=${limit}`,
+    ),
+  evaluate: (
+    leagueId: string,
+    body: {
+      fantasyTeamId: string;
+      playerName: string;
+      realTeam?: string;
+      currentBid?: number | null;
+    },
+  ) =>
+    request<Evaluation>(`/leagues/${leagueId}/evaluate`, {
+      method: "POST",
+      ...json(body),
+    }),
 };

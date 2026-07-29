@@ -11,6 +11,7 @@ import type { ReactNode } from "react";
 import { AuthProvider } from "./auth/AuthProvider";
 import { useAuth } from "./auth/context";
 import { Layout } from "./components/Layout";
+import { AuctionRoomPage } from "./pages/AuctionRoomPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { InvitePage } from "./pages/InvitePage";
 import { LeaguePage } from "./pages/LeaguePage";
@@ -73,6 +74,10 @@ export default function App() {
             <Route path="/" element={<DashboardPage />} />
             <Route path="/organizations/:orgId" element={<OrganizationPage />} />
             <Route path="/leagues/:leagueId" element={<LeaguePage />} />
+            <Route
+              path="/leagues/:leagueId/auction"
+              element={<AuctionRoomPage />}
+            />
           </Route>
           <Route
             path="/invite/:token"

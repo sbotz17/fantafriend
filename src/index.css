@@ -281,3 +281,61 @@ th {
   font-size: 1.4rem;
   font-weight: 800;
 }
+
+/* Sala d'asta */
+.tiles {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.tile {
+  flex: 1 1 90px;
+  min-width: 90px;
+  text-align: center;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.4rem;
+}
+.tile span {
+  display: block;
+  font-size: 0.66rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.15rem;
+}
+.tile b {
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+.accent {
+  color: var(--primary);
+}
+.danger-text {
+  color: var(--danger);
+}
+
+.auction-live {
+  border-color: var(--primary);
+}
+.verdict {
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  padding: 0.9rem;
+  border-radius: var(--radius);
+}
+.verdict.ok {
+  background: rgba(74, 222, 128, 0.15);
+  color: var(--primary);
+}
+.verdict.warn {
+  background: rgba(251, 191, 36, 0.15);
+  color: var(--warning);
+}
+.verdict.no {
+  background: rgba(248, 113, 113, 0.15);
+  color: var(--danger);
+}

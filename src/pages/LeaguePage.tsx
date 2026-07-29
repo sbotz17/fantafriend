@@ -192,6 +192,9 @@ export function LeaguePage() {
           </p>
         </div>
         <div className="row">
+          <Link to={`/leagues/${leagueId}/auction`}>
+            <button className="primary">Apri sala d'asta</button>
+          </Link>
           <span className={`badge status-${league.status}`}>
             {STATUS_LABELS[league.status]}
           </span>
