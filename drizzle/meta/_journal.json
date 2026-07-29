@@ -36,6 +36,13 @@
       "when": 1785192103982,
       "tag": "0004_slim_black_bolt",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1785365023588,
+      "tag": "0005_misty_doctor_strange",
+      "breakpoints": true
     }
   ]
 }

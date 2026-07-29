@@ -37,6 +37,18 @@ testo esatto senza errori.
 Da questo momento il pannello in basso a destra si aggiorna da solo a ogni
 cambio di giocatore o di offerta.
 
+## Insieme alla Sala d'asta
+
+Quello che l'estensione legge viene pubblicato anche in FantaFriend: se tieni
+aperta la **Sala d'asta** (`Apri sala d'asta` dalla pagina della lega), i campi
+"giocatore chiamato" e "offerta corrente" si compilano da soli, e comparirà
+l'indicatore **● in diretta**. Comodo su un secondo schermo, perché lì hai
+anche la classifica di chi chiamare e i budget degli avversari.
+
+Il pulsante **Sincronizzato / Manuale** nella Sala d'asta permette di staccarsi
+dalla lettura automatica e digitare a mano, per esempio se il riconoscimento
+sbaglia o se vuoi simulare un rilancio.
+
 ## Cosa mostra il pannello
 
 | Voce | Significato |

@@ -14,7 +14,12 @@ import type {
   ValuedPlayer,
 } from "../lib/valuation";
 import type { Database } from "../db/client";
-import { fantasyTeams, players, rosterEntries } from "../db/schema";
+import {
+  auctionLiveState,
+  fantasyTeams,
+  players,
+  rosterEntries,
+} from "../db/schema";
 
 const leagueParam = z.object({ leagueId: z.uuid() });
 
@@ -29,6 +34,13 @@ const evaluateSchema = z.object({
   playerName: z.string().min(1).max(120),
   realTeam: z.string().max(80).optional(),
   currentBid: z.number().int().min(0).nullish(),
+  /**
+   * Da dove arriva la chiamata. Solo le letture automatiche aggiornano lo
+   * stato condiviso della lega: se lo facesse anche la digitazione manuale
+   * nella Sala d'asta, la dashboard finirebbe per rileggere quanto appena
+   * scritto dall'utente.
+   */
+  source: z.enum(["extension", "manual"]).optional(),
 });
 
 interface AuctionState {
@@ -148,6 +160,40 @@ recommendationsRoutes.get(
   },
 );
 
+// GET /api/leagues/:leagueId/live
+// Ultima chiamata pubblicata dalla lettura automatica. La Sala d'asta la
+// interroga periodicamente per autocompilare i campi.
+recommendationsRoutes.get(
+  "/leagues/:leagueId/live",
+  zValidator("param", leagueParam),
+  async (c) => {
+    const db = requireDb(c);
+    const user = requireUser(c);
+    const { leagueId } = c.req.valid("param");
+
+    await requireLeagueMember(db, leagueId, user.id);
+
+    const [row] = await db
+      .select()
+      .from(auctionLiveState)
+      .where(eq(auctionLiveState.leagueId, leagueId));
+
+    if (!row) return c.json({ active: false });
+
+    return c.json({
+      active: true,
+      playerName: row.playerName,
+      currentBid: row.currentBid,
+      updatedAt: row.updatedAt,
+      /** Secondi trascorsi: permette di distinguere una diretta da un residuo. */
+      ageSeconds: Math.max(
+        0,
+        Math.round((Date.now() - row.updatedAt.getTime()) / 1000),
+      ),
+    });
+  },
+);
+
 // POST /api/leagues/:leagueId/evaluate
 // Riceve il giocatore attualmente all'asta (nome letto da Fantalab) e
 // l'offerta corrente, e restituisce il verdetto immediato.
@@ -159,12 +205,38 @@ recommendationsRoutes.post(
     const db = requireDb(c);
     const user = requireUser(c);
     const { leagueId } = c.req.valid("param");
-    const { fantasyTeamId, playerName, realTeam, currentBid } =
+    const { fantasyTeamId, playerName, realTeam, currentBid, source } =
       c.req.valid("json");
 
     const state = await loadAuctionState(db, leagueId, fantasyTeamId, user.id);
 
     const match = matchPlayer(playerName, state.available, realTeam);
+
+    // Le letture automatiche pubblicano la chiamata in corso, così la Sala
+    // d'asta aperta altrove può autocompilarsi.
+    if (source !== "manual") {
+      await db
+        .insert(auctionLiveState)
+        .values({
+          leagueId,
+          playerName,
+          currentBid: currentBid ?? null,
+          matchedPlayerId: match?.player.id ?? null,
+          updatedByUserId: user.id,
+          updatedAt: new Date(),
+        })
+        .onConflictDoUpdate({
+          target: auctionLiveState.leagueId,
+          set: {
+            playerName,
+            currentBid: currentBid ?? null,
+            matchedPlayerId: match?.player.id ?? null,
+            updatedByUserId: user.id,
+            updatedAt: new Date(),
+          },
+        });
+    }
+
     if (!match) {
       return c.json({
         matched: false,

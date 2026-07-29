@@ -90,7 +90,19 @@ residuo — sempre lasciando 1 credito per ogni slot ancora da riempire.
 | Metodo | Percorso | Descrizione |
 | --- | --- | --- |
 | GET | `/api/leagues/:leagueId/recommendations?fantasyTeamId=&limit=` | Chi conviene chiamare adesso, in ordine di priorità, con soglia massima per ciascuno. |
-| POST | `/api/leagues/:leagueId/evaluate` | Verdetto immediato sul giocatore all'asta. Body: `{ fantasyTeamId, playerName, realTeam?, currentBid? }`. |
+| POST | `/api/leagues/:leagueId/evaluate` | Verdetto immediato sul giocatore all'asta. Body: `{ fantasyTeamId, playerName, realTeam?, currentBid?, source? }`. |
+| GET | `/api/leagues/:leagueId/live` | Ultima chiamata pubblicata dalla lettura automatica, con `ageSeconds` per capire se è ancora in corso. |
+
+### Sincronizzazione fra estensione e Sala d'asta
+
+L'estensione e la dashboard vivono in schede diverse e non possono parlarsi
+direttamente: fa da ponte il server. Ogni `evaluate` che **non** dichiara
+`source: "manual"` pubblica la chiamata in corso nello stato della lega
+(tabella `auction_live_state`, una riga per lega, sovrascritta ogni volta); la
+Sala d'asta interroga `GET …/live` e si autocompila.
+
+La dashboard passa sempre `source: "manual"` proprio per non ripubblicare
+quanto l'utente sta digitando, che altrimenti si rileggerebbe da sola.
 
 `evaluate` accetta il **nome così com'è letto** dalla pagina d'asta: il
 matching è tollerante a maiuscole, accenti, solo cognome e refusi, e rifiuta i

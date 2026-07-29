@@ -185,6 +185,15 @@ export interface Evaluation {
   budgetRemaining?: number;
 }
 
+export interface LiveState {
+  active: boolean;
+  playerName?: string;
+  currentBid?: number | null;
+  updatedAt?: string;
+  /** Secondi dall'ultimo aggiornamento: serve a capire se è ancora "in diretta". */
+  ageSeconds?: number;
+}
+
 export interface BudgetSummary {
   leagueId: string;
   budget: number;
@@ -340,10 +349,13 @@ export const api = {
       playerName: string;
       realTeam?: string;
       currentBid?: number | null;
+      source?: "extension" | "manual";
     },
   ) =>
     request<Evaluation>(`/leagues/${leagueId}/evaluate`, {
       method: "POST",
       ...json(body),
     }),
+  getLiveState: (leagueId: string) =>
+    request<LiveState>(`/leagues/${leagueId}/live`),
 };

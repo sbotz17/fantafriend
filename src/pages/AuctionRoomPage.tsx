@@ -2,7 +2,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import { api, ApiError } from "../lib/api";
-import type { Evaluation, Recommendations, Role } from "../lib/api";
+import type {
+  Evaluation,
+  LiveState,
+  Recommendations,
+  Role,
+} from "../lib/api";
 import { useLoad } from "../lib/useLoad";
 import { ROLE_LABELS } from "../lib/util";
 
@@ -59,6 +64,46 @@ export function AuctionRoomPage() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [assigning, setAssigning] = useState(false);
 
+  // Sincronizzazione con la lettura automatica fatta dall'estensione.
+  const [syncOn, setSyncOn] = useState(true);
+  const [live, setLive] = useState<LiveState | null>(null);
+  // Ultima chiamata già riversata nei campi: evita di sovrascrivere in
+  // continuazione (e di annullare una correzione manuale) finché il dato
+  // pubblicato resta lo stesso.
+  const appliedRef = useRef("");
+
+  useEffect(() => {
+    if (!syncOn || !leagueId) return;
+
+    let active = true;
+    const tick = async () => {
+      try {
+        const state = await api.getLiveState(leagueId);
+        if (!active) return;
+        setLive(state);
+
+        if (!state.active || !state.playerName) return;
+        const key = `${state.playerName}|${state.currentBid ?? ""}|${state.updatedAt ?? ""}`;
+        if (key === appliedRef.current) return;
+        appliedRef.current = key;
+
+        setPlayerName(state.playerName);
+        if (typeof state.currentBid === "number") {
+          setBid(Math.max(1, state.currentBid));
+        }
+      } catch {
+        // Errori momentanei di rete: il tentativo successivo riproverà.
+      }
+    };
+
+    void tick();
+    const id = setInterval(() => void tick(), 1500);
+    return () => {
+      active = false;
+      clearInterval(id);
+    };
+  }, [leagueId, syncOn]);
+
   // Classifica di chi conviene chiamare: dipende solo dalla squadra scelta e
   // dallo stato dell'asta, quindi si ricarica dopo ogni aggiudicazione.
   const rosterCount = data?.roster.length ?? 0;
@@ -94,6 +139,9 @@ export function AuctionRoomPage() {
           fantasyTeamId: myTeamId,
           playerName: name,
           currentBid: bid,
+          // La dashboard consulta soltanto: non deve ripubblicare lo stato,
+          // altrimenti si rileggerebbe da sola.
+          source: "manual",
         })
         .then((res) => {
           // Ignora le risposte arrivate fuori ordine.
@@ -146,6 +194,9 @@ export function AuctionRoomPage() {
 
   const { league, teams, budget } = data;
   const verdict = evaluation?.verdict;
+  // Consideriamo "in diretta" una lettura arrivata negli ultimi 15 secondi.
+  const liveFresh =
+    !!live?.active && (live.ageSeconds ?? Number.MAX_SAFE_INTEGER) <= 15;
   const overThreshold =
     evaluation?.matched && evaluation.maxBid !== undefined && bid > evaluation.maxBid;
 
@@ -217,7 +268,30 @@ export function AuctionRoomPage() {
 
       {/* Giocatore attualmente all'asta */}
       <div className="card auction-live">
-        <h2 style={{ marginBottom: "0.75rem" }}>Chiamata in corso</h2>
+        <div className="spread" style={{ marginBottom: "0.75rem" }}>
+          <h2 style={{ margin: 0 }}>Chiamata in corso</h2>
+          <div className="row" style={{ gap: "0.5rem" }}>
+            {syncOn && liveFresh && (
+              <span className="live-dot" title="Dati dalla lettura automatica">
+                ● in diretta
+              </span>
+            )}
+            {syncOn && !liveFresh && (
+              <span className="muted" style={{ fontSize: "0.8rem" }}>
+                {live?.active
+                  ? `ultima lettura ${live.ageSeconds}s fa`
+                  : "nessuna lettura ricevuta"}
+              </span>
+            )}
+            <button
+              className={syncOn ? "sm" : "ghost sm"}
+              onClick={() => setSyncOn((v) => !v)}
+              title="Compila i campi automaticamente da quanto letto sulla pagina d'asta"
+            >
+              {syncOn ? "Sincronizzato" : "Manuale"}
+            </button>
+          </div>
+        </div>
         <div className="field-row">
           <div style={{ gridColumn: "span 2" }}>
             <label htmlFor="call-name">Giocatore chiamato</label>

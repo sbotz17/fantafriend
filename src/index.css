@@ -319,6 +319,20 @@ th {
 .auction-live {
   border-color: var(--primary);
 }
+.live-dot {
+  color: var(--primary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  animation: ff-pulse 1.6s ease-in-out infinite;
+}
+@keyframes ff-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-dot { animation: none; }
+}
 .verdict {
   text-align: center;
   font-size: 1.6rem;
