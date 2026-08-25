@@ -314,6 +314,8 @@ export const api = {
       role: Role;
       baseQuotation?: number;
       season: string;
+      fvm?: number;
+      fantamedia?: number;
     }[],
   ) =>
     request<{ requested: number; inserted: number }>("/players/bulk", {

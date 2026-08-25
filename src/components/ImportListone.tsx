@@ -1,7 +1,11 @@
 import { useMemo, useState } from "react";
 
 import { api, ApiError } from "../lib/api";
-import { LISTONE_TEMPLATE, parseListone } from "../lib/csv";
+import {
+  FANTACALCIO_QUOTAZIONI_URL,
+  LISTONE_TEMPLATE,
+  parseListone,
+} from "../lib/csv";
 
 interface Props {
   season: string;
@@ -63,15 +67,43 @@ export function ImportListone({ season, onImported }: Props) {
   return (
     <div className="stack" style={{ gap: "0.75rem" }}>
       <div className="spread">
-        <strong>Importa listone da CSV</strong>
+        <strong>Importa listone</strong>
         <button className="ghost sm" onClick={() => setOpen(false)}>
           Chiudi
         </button>
       </div>
+
+      <div className="alert info">
+        <strong>Listone ufficiale</strong>
+        <ol style={{ margin: "0.4rem 0 0", paddingLeft: "1.1rem" }}>
+          <li>
+            Scaricalo da{" "}
+            <a
+              href={FANTACALCIO_QUOTAZIONI_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              fantacalcio.it → Quotazioni
+            </a>{" "}
+            con il pulsante <em>Esporta</em>.
+          </li>
+          <li>
+            Apri il file scaricato, seleziona tutto{" "}
+            <kbd>Ctrl</kbd>+<kbd>A</kbd> e copia <kbd>Ctrl</kbd>+<kbd>C</kbd>.
+          </li>
+          <li>
+            Incolla qui sotto <kbd>Ctrl</kbd>+<kbd>V</kbd>. Le colonne{" "}
+            <code>R</code>, <code>Nome</code>, <code>Squadra</code>,{" "}
+            <code>Qt.A</code> e <code>FVM</code> sono riconosciute da sole.
+          </li>
+        </ol>
+      </div>
+
       <p className="muted" style={{ margin: 0, fontSize: "0.85rem" }}>
-        Intestazione richiesta: <code>nome</code>, <code>squadra</code>,{" "}
-        <code>ruolo</code> (P/D/C/A); <code>quotazione</code> opzionale.
-        Delimitatore <code>,</code> <code>;</code> o tab. Stagione: {season}.{" "}
+        In alternativa carica un CSV con intestazione <code>nome</code>,{" "}
+        <code>squadra</code>, <code>ruolo</code> (P/D/C/A);{" "}
+        <code>quotazione</code> e <code>fvm</code> facoltative. Stagione:{" "}
+        {season}.{" "}
         <a href={templateHref} download={`listone-${season}.csv`}>
           Scarica modello
         </a>
@@ -105,6 +137,22 @@ export function ImportListone({ season, onImported }: Props) {
       {parsed && (
         <div className="alert info">
           {parsed.players.length} giocatori validi su {parsed.totalRows} righe.
+          {parsed.players.length > 0 && (
+            <>
+              <br />
+              {parsed.withFvm > 0 ? (
+                <span style={{ color: "var(--primary)" }}>
+                  FVM letto per {parsed.withFvm} giocatori: i consigli d'asta
+                  saranno precisi.
+                </span>
+              ) : (
+                <span style={{ color: "var(--warning)" }}>
+                  Nessuna colonna FVM: i consigli useranno la quotazione base e
+                  saranno meno precisi.
+                </span>
+              )}
+            </>
+          )}
           {parsed.errors.length > 0 && (
             <>
               <br />

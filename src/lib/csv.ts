@@ -5,16 +5,24 @@ export interface ParsedPlayer {
   realTeam: string;
   role: Role;
   baseQuotation: number;
+  /** Fantavalore di Mercato: se presente guida i consigli d'asta. */
+  fvm?: number;
+  fantamedia?: number;
 }
 
 export interface ParseResult {
   players: ParsedPlayer[];
   errors: string[];
   totalRows: number;
+  /** Quanti giocatori hanno l'FVM: senza, i consigli sono meno precisi. */
+  withFvm: number;
 }
 
-// Intestazioni riconosciute (in minuscolo) per ciascun campo.
-const HEADER_ALIASES: Record<keyof ParsedPlayer, string[]> = {
+type Field = keyof ParsedPlayer;
+
+// Intestazioni riconosciute (in minuscolo). Coprono sia i nomi discorsivi sia
+// le sigle del listone ufficiale di fantacalcio.it (R, Nome, Squadra, Qt.A, FVM).
+const HEADER_ALIASES: Record<Field, string[]> = {
   name: ["nome", "name", "giocatore", "calciatore"],
   realTeam: ["squadra", "team", "club", "squadra reale"],
   role: ["ruolo", "r", "role"],
@@ -23,24 +31,42 @@ const HEADER_ALIASES: Record<keyof ParsedPlayer, string[]> = {
     "qt",
     "qt.a",
     "qta",
+    "qt a",
     "quotazione attuale",
     "prezzo",
     "valore",
   ],
+  fvm: ["fvm", "fvm m", "fantavalore", "fantavalore di mercato"],
+  fantamedia: ["fantamedia", "fm", "fanta media", "media fanta"],
 };
 
-/** Sceglie il delimitatore più probabile guardando la prima riga. */
-function detectDelimiter(line: string): string {
-  const counts: Record<string, number> = {
-    ";": (line.match(/;/g) ?? []).length,
-    ",": (line.match(/,/g) ?? []).length,
-    "\t": (line.match(/\t/g) ?? []).length,
-  };
+/**
+ * Sceglie il delimitatore più probabile.
+ *
+ * Non basta guardare la prima riga: il listone ufficiale comincia con righe di
+ * titolo prive di separatori, e un singolo carattere può comparire anche nei
+ * dati (il ruolo Mantra "M;C" contiene un punto e virgola). Contiamo quindi le
+ * occorrenze su un campione di righe e scegliamo il carattere nettamente più
+ * frequente.
+ */
+function detectDelimiter(text: string): string {
+  const sample = text.split(/\r?\n/).filter((l) => l.trim() !== "").slice(0, 20);
+
+  const candidates: [string, RegExp][] = [
+    ["\t", /\t/g],
+    [";", /;/g],
+    [",", /,/g],
+  ];
+
   let best = ",";
   let max = -1;
-  for (const [delim, n] of Object.entries(counts)) {
-    if (n > max) {
-      max = n;
+  for (const [delim, re] of candidates) {
+    const total = sample.reduce(
+      (sum, line) => sum + (line.match(re) ?? []).length,
+      0,
+    );
+    if (total > max) {
+      max = total;
       best = delim;
     }
   }
@@ -98,12 +124,14 @@ function normalizeRole(value: string): Role | null {
 }
 
 /** Mappa gli indici di colonna a partire dalla riga di intestazione. */
-function mapHeaders(
-  header: string[],
-): Partial<Record<keyof ParsedPlayer, number>> {
-  const normalized = header.map((h) => h.trim().toLowerCase());
-  const map: Partial<Record<keyof ParsedPlayer, number>> = {};
-  for (const field of Object.keys(HEADER_ALIASES) as (keyof ParsedPlayer)[]) {
+function mapHeaders(header: string[]): Partial<Record<Field, number>> {
+  const normalized = header.map((h) =>
+    String(h ?? "")
+      .trim()
+      .toLowerCase(),
+  );
+  const map: Partial<Record<Field, number>> = {};
+  for (const field of Object.keys(HEADER_ALIASES) as Field[]) {
     const idx = normalized.findIndex((h) =>
       HEADER_ALIASES[field].includes(h),
     );
@@ -113,50 +141,77 @@ function mapHeaders(
 }
 
 /**
- * Analizza un CSV del listone. Richiede una riga di intestazione con almeno le
- * colonne nome, squadra e ruolo; la quotazione è opzionale (default 1). La
- * stagione è fornita a parte (dalla lega).
+ * Individua la riga di intestazione. Il listone ufficiale è preceduto da una o
+ * più righe di titolo (es. "Quotazioni Fantacalcio Stagione 2026-27"), quindi
+ * non si può assumere che sia sempre la prima: cerchiamo entro le prime righe
+ * quella che contiene davvero le colonne obbligatorie.
  */
-export function parseListone(text: string): ParseResult {
-  const trimmed = text.trim();
-  if (!trimmed) {
-    return { players: [], errors: ["File vuoto."], totalRows: 0 };
+function findHeaderRow(rows: string[][]): number {
+  const limit = Math.min(rows.length, 15);
+  for (let i = 0; i < limit; i++) {
+    const cols = mapHeaders(rows[i]);
+    if (
+      cols.name !== undefined &&
+      cols.realTeam !== undefined &&
+      cols.role !== undefined
+    ) {
+      return i;
+    }
   }
+  return -1;
+}
 
-  const firstLine = trimmed.split(/\r?\n/, 1)[0];
-  const delimiter = detectDelimiter(firstLine);
-  const rows = parseCsv(trimmed, delimiter);
+/** Legge un numero tollerando virgola decimale e spazi. */
+function parseNumber(raw: string | undefined): number | null {
+  const value = String(raw ?? "").trim().replace(",", ".");
+  if (value === "") return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+/**
+ * Analizza una tabella già suddivisa in righe e celle, qualunque sia
+ * l'origine (CSV o foglio Excel). Servono le colonne nome, squadra e ruolo;
+ * quotazione, FVM e fantamedia sono facoltative. La stagione arriva a parte,
+ * dalla lega.
+ */
+export function parseRows(rows: string[][]): ParseResult {
+  const empty = { players: [], errors: [] as string[], totalRows: 0, withFvm: 0 };
 
   if (rows.length < 2) {
     return {
-      players: [],
+      ...empty,
       errors: ["Servono un'intestazione e almeno una riga di dati."],
-      totalRows: 0,
     };
   }
 
-  const cols = mapHeaders(rows[0]);
-  const missing: string[] = [];
-  if (cols.name === undefined) missing.push("nome");
-  if (cols.realTeam === undefined) missing.push("squadra");
-  if (cols.role === undefined) missing.push("ruolo");
-  if (missing.length > 0) {
+  const headerIndex = findHeaderRow(rows);
+  if (headerIndex === -1) {
+    const cols = mapHeaders(rows[0]);
+    const missing: string[] = [];
+    if (cols.name === undefined) missing.push("nome");
+    if (cols.realTeam === undefined) missing.push("squadra");
+    if (cols.role === undefined) missing.push("ruolo");
     return {
-      players: [],
-      errors: [`Colonne mancanti nell'intestazione: ${missing.join(", ")}.`],
-      totalRows: rows.length - 1,
+      ...empty,
+      errors: [
+        `Colonne mancanti nell'intestazione: ${missing.join(", ") || "nome, squadra, ruolo"}.`,
+      ],
+      totalRows: Math.max(0, rows.length - 1),
     };
   }
 
+  const cols = mapHeaders(rows[headerIndex]);
   const players: ParsedPlayer[] = [];
   const errors: string[] = [];
-  const dataRows = rows.slice(1);
+  const dataRows = rows.slice(headerIndex + 1);
+  let withFvm = 0;
 
   dataRows.forEach((row, index) => {
-    const lineNo = index + 2; // +1 header, +1 base-1
-    const name = (row[cols.name!] ?? "").trim();
-    const realTeam = (row[cols.realTeam!] ?? "").trim();
-    const roleRaw = (row[cols.role!] ?? "").trim();
+    const lineNo = headerIndex + index + 2; // numero di riga leggibile dall'utente
+    const name = String(row[cols.name!] ?? "").trim();
+    const realTeam = String(row[cols.realTeam!] ?? "").trim();
+    const roleRaw = String(row[cols.role!] ?? "").trim();
 
     if (!name || !realTeam || !roleRaw) {
       errors.push(`Riga ${lineNo}: campi obbligatori mancanti.`);
@@ -167,18 +222,51 @@ export function parseListone(text: string): ParseResult {
       errors.push(`Riga ${lineNo}: ruolo non valido "${roleRaw}" (usa P/D/C/A).`);
       return;
     }
-    let baseQuotation = 1;
+
+    const player: ParsedPlayer = { name, realTeam, role, baseQuotation: 1 };
+
     if (cols.baseQuotation !== undefined) {
-      const raw = (row[cols.baseQuotation] ?? "").trim().replace(",", ".");
-      const n = Math.round(Number(raw));
-      if (raw !== "" && Number.isFinite(n) && n >= 1) baseQuotation = n;
+      const n = parseNumber(row[cols.baseQuotation]);
+      if (n !== null && n >= 1) player.baseQuotation = Math.round(n);
+    }
+    if (cols.fvm !== undefined) {
+      const n = parseNumber(row[cols.fvm]);
+      if (n !== null && n >= 0) {
+        player.fvm = Math.round(n);
+        withFvm += 1;
+      }
+    }
+    if (cols.fantamedia !== undefined) {
+      const n = parseNumber(row[cols.fantamedia]);
+      if (n !== null && n >= 0 && n <= 30) {
+        player.fantamedia = Math.round(n * 100) / 100;
+      }
     }
 
-    players.push({ name, realTeam, role, baseQuotation });
+    players.push(player);
   });
 
-  return { players, errors, totalRows: dataRows.length };
+  return { players, errors, totalRows: dataRows.length, withFvm };
 }
+
+/** Analizza il listone in formato CSV (o incollato come testo). */
+export function parseListone(text: string): ParseResult {
+  const trimmed = text.trim();
+  if (!trimmed) {
+    return { players: [], errors: ["File vuoto."], totalRows: 0, withFvm: 0 };
+  }
+
+  return parseRows(parseCsv(trimmed, detectDelimiter(trimmed)));
+}
+
+/**
+ * Il listone ufficiale si scarica in formato Excel. Non usiamo una libreria per
+ * leggerlo — l'unica pubblicata su npm è ferma a una versione con vulnerabilità
+ * note — perché non serve: copiando le celle da Excel il contenuto finisce
+ * negli appunti separato da tabulazioni, che `parseListone` riconosce già.
+ */
+export const FANTACALCIO_QUOTAZIONI_URL =
+  "https://www.fantacalcio.it/quotazioni-fantacalcio";
 
 function csvCell(value: string | number): string {
   const s = String(value);
@@ -201,9 +289,9 @@ export function rosterToCsv(rows: RosterEntry[]): string {
 
 /** CSV di esempio scaricabile come modello. */
 export const LISTONE_TEMPLATE = [
-  "Ruolo,Nome,Squadra,Quotazione",
-  "P,Sommer,Inter,18",
-  "D,Bastoni,Inter,15",
-  "C,Barella,Inter,24",
-  "A,Lautaro Martinez,Inter,32",
+  "Ruolo,Nome,Squadra,Quotazione,FVM",
+  "P,Sommer,Inter,18,20",
+  "D,Bastoni,Inter,15,22",
+  "C,Barella,Inter,24,45",
+  "A,Lautaro Martinez,Inter,32,120",
 ].join("\n");
