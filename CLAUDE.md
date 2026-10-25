@@ -96,7 +96,7 @@ Le procedure vivono in dieci skill, caricate solo quando servono:
 | `squadra-sicurezza` | limiti della squadra, dati, credenziali, ripristino |
 | `squadra-sicurezza-app` | accessi, ruoli, API, input, revisione di sicurezza |
 | `squadra-dati` | qualsiasi modifica a dati, query o migrazioni |
-| `squadra-database-firestore` | Closer, Avanza, campionato-broccoli |
+| `squadra-database-firestore` | Closer e Avanza (Firestore; campionato usa Realtime Database) |
 | `squadra-flutter` | codice Flutter |
 | `squadra-sincronizzazione` | cambio di regole, indice, memoria |
 

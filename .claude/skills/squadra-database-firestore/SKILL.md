@@ -1,12 +1,15 @@
 ---
 name: squadra-database-firestore
-description: Regole per progettare e modificare dati su Firestore (collezioni, regole di sicurezza, indici, query, contatori, transazioni, emulatore). Usare per Closer (commerciali), Avanza e campionato-broccoli, o quando si tocca firestore.rules o firestore.indexes.json.
+description: Regole per progettare e modificare dati su Firestore (collezioni, regole di sicurezza, indici, query, contatori, transazioni, emulatore). Usare per Closer (commerciali) e Avanza, o quando si tocca firestore.rules o firestore.indexes.json.
 ---
 
 # Firestore
 
-Vale per i progetti che usano Firebase: **Closer** (`commerciali`, progetti `commerciali-prod` e
-`commerciali-app`), **Avanza** (`avanza`, `avanza-b62d7` e `avanza-test-c33ef`), **campionato-broccoli**.
+Vale per i progetti che usano **Firestore**: **Closer** (`commerciali`, progetti `commerciali-prod` e
+`commerciali-app`) e **Avanza** (`avanza`, `avanza-b62d7` e `avanza-test-c33ef`).
+
+`campionato-broccoli` usa **Realtime Database**, non Firestore: questa skill non si applica. Se in futuro
+passa a Firestore, va dichiarato nel registro decisioni prima di migrare.
 
 ## Modello dei dati
 
