@@ -11,6 +11,9 @@ Vale per correzioni **e** nuovi sviluppi, su staging e su produzione.
 
 `docs/progetto/test/audit-completa.md` deve essere eseguito e il report aggiornato con esiti reali e prove UI.
 
+Staging non è una sandbox: è ciò che Andrea apre. Quindi le prove si fanno su build locale o canale di
+anteprima e **solo dopo** si pubblica su staging.
+
 Servono, tutti insieme:
 
 1. audit-completa eseguito, nessuna area `BLOCCATA`;

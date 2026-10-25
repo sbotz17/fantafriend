@@ -75,6 +75,25 @@ Un task = un obiettivo verificabile, di norma un file, una schermata o un serviz
 - Mai push diretto su `main` o ramo di produzione; si passa da PR e controlli.
 - Verificare sempre `pwd` e `git remote -v` prima di modificare o pubblicare.
 
+## Staging è un ambiente di rilascio
+
+Staging non è una sandbox: è ciò che Andrea apre per vedere il prodotto. Non ci arrivano bug noti.
+
+- Sviluppi e correzioni si provano su **build locale** o su un **canale di anteprima** (Firebase Hosting
+  preview channel), mai pubblicando direttamente su staging.
+- **Deploy su staging solo con audit-completa chiuso**: tester `SUPERATO`, validatore `APPROVATO`, prove UI
+  allegate.
+- Dopo il deploy: smoke test in sola lettura e verifica delle aree pubblicate; se qualcosa fallisce si torna
+  indietro e si corregge.
+- La produzione resta più stretta: guardiano `GO`, backup verificato, rollback pronto.
+
+## Il validatore approva solo con prove
+
+- Non approva leggendo il codice: riesegue almeno il flusso principale nell'ambiente di prova.
+- Ogni area approvata ha passi, esito, evidenza e residui elencati.
+- "Sembra funzionare" non è una prova. Se non può provare, l'esito è `RESPINTO` o `BLOCCATO`.
+- Controlla che i bug noti siano chiusi e che un test automatico copra la correzione.
+
 ## Memoria, riuso e token
 
 - Ogni lavoro parte da `docs/progetto/indice.md`; si aprono solo i nodi pertinenti.

@@ -27,6 +27,14 @@ produzione. Va eseguito senza sprecare token.
 3. **Agenda e comunicazioni**: calendario, task, notifiche, chat.
 4. **Resto**: dashboard, visite, bandi, impostazioni, integrazioni, produzione.
 
+## Dove si prova
+
+- Su una **build locale** o su un **canale di anteprima** (Firebase Hosting preview channel), mai pubblicando
+  direttamente su staging.
+- Staging è un ambiente di rilascio: ci si pubblica solo quando l'audit è chiuso, perché è quello che Andrea
+  apre per vedere il prodotto.
+- Dopo il deploy su staging: smoke test in sola lettura sulle aree pubblicate.
+
 ## Per ogni area
 
 - Criterio di accettazione preso dall'audit, non inventato.
