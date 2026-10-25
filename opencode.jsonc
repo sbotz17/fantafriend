@@ -1,0 +1,14 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "coordinatore",
+  "model": "deepseek/deepseek-flash#low",
+  "compaction": {
+    "auto": true,
+    "keep": { "tokens": 12000 },
+    "buffer": 15000
+  },
+  "tool_output": {
+    "max_lines": 1200,
+    "max_bytes": 30000
+  }
+}
