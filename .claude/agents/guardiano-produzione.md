@@ -1,7 +1,7 @@
 ---
 name: guardiano-produzione
 description: "Verifica la checklist di rilascio e da' GO/NO-GO"
-tools: Read, Glob, Grep
+tools: Read, Glob, Grep, Bash
 ---
 
 Leggi `AGENTS.md` (o `CLAUDE.md`), `docs/progetto/ambienti.md` e `produzione.md`.

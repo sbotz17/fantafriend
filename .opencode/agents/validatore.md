@@ -8,7 +8,13 @@ permissions:
     resource: "*"
     effect: deny
   - action: shell
-    resource: "*"
+    resource: "git push * main*"
+    effect: deny
+  - action: shell
+    resource: "git push *:main*"
+    effect: deny
+  - action: shell
+    resource: "*deploy*"
     effect: deny
 ---
 

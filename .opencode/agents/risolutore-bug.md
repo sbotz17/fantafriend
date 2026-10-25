@@ -5,7 +5,10 @@ model: deepseek/deepseek-v4-pro#high
 steps: 20
 permissions:
   - action: shell
-    resource: "git push *"
+    resource: "git push * main*"
+    effect: deny
+  - action: shell
+    resource: "git push *:main*"
     effect: deny
   - action: shell
     resource: "*deploy*"

@@ -11,7 +11,13 @@ permissions:
     resource: "docs/progetto/test/*"
     effect: allow
   - action: shell
-    resource: "*"
+    resource: "git push * main*"
+    effect: deny
+  - action: shell
+    resource: "git push *:main*"
+    effect: deny
+  - action: shell
+    resource: "*deploy*"
     effect: deny
 ---
 
