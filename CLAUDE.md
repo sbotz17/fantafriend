@@ -85,7 +85,7 @@ Un task = un obiettivo verificabile, di norma un file, una schermata o un serviz
 
 ## Skill operative
 
-Le procedure vivono in sei skill, caricate solo quando servono:
+Le procedure vivono in dieci skill, caricate solo quando servono:
 
 | Skill | Quando |
 |---|---|
@@ -93,8 +93,15 @@ Le procedure vivono in sei skill, caricate solo quando servono:
 | `squadra-ritorni` | segnalazione, bug, hotfix |
 | `squadra-rilascio` | deploy su staging o produzione |
 | `squadra-audit` | audit-completa prima di pubblicare |
-| `squadra-sicurezza` | limiti, dati, credenziali, ripristino |
+| `squadra-sicurezza` | limiti della squadra, dati, credenziali, ripristino |
+| `squadra-sicurezza-app` | accessi, ruoli, API, input, revisione di sicurezza |
+| `squadra-dati` | qualsiasi modifica a dati, query o migrazioni |
+| `squadra-database-firestore` | Closer, Avanza, campionato-broccoli |
+| `squadra-flutter` | codice Flutter |
 | `squadra-sincronizzazione` | cambio di regole, indice, memoria |
+
+Le skill **senza** prefisso `squadra-` sono del singolo progetto e non vengono sovrascritte dalla
+sincronizzazione.
 
 Prima di un rilascio, di un audit, di un bug o di un'operazione sui dati **la skill va caricata**.
 Se lo strumento non la trova, apri il file `~/.claude/skills/<nome>/SKILL.md` (o
