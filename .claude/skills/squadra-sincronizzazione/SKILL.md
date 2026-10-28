@@ -10,13 +10,16 @@ La fonte globale è il repository `sbotz17/squadraalphalab` (`CLAUDE.md` + `skil
 - Ogni modifica a una regola o configurazione della squadra in un progetto va replicata subito qui, nello
   stesso giro, e viceversa.
 - Un task che cambia regole non è concluso finché entrambi i repository sono aggiornati e pushati.
+- L'aggiornamento lo applica la squadra (fonte, copie globali e blocchi nei progetti) con seconda lettura
+  indipendente e voce nel registro; non si chiede ad Andrea di applicarlo o di provarlo.
 - Un progetto può avere regole locali in `AGENTS.md`: devono restare allineate, senza duplicare le
   procedure già nelle skill.
 
 ## Struttura
 
 - `CLAUDE.md` — nucleo breve, caricato a ogni sessione: identità, limiti, ruoli, gate di qualità.
-  Resta **sotto le 100 righe**; i dettagli vanno nelle skill.
+  Resta **breve** (indicativamente entro ~170 righe); i dettagli vanno nelle skill.
+- `DECISIONI.md` — decisioni di Andrea sulla squadra, con data ed effetto; si cita nel registro del progetto.
 - `skills/squadra-*/SKILL.md` — procedure caricate solo quando servono.
 - `archive/` — versione integrale storica, solo consultazione.
 

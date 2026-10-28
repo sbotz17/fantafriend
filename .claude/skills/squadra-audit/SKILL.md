@@ -31,8 +31,9 @@ produzione. Va eseguito senza sprecare token.
 
 - Su una **build locale** o su un **canale di anteprima** (Firebase Hosting preview channel), mai pubblicando
   direttamente su staging.
-- Staging è un ambiente di rilascio: ci si pubblica solo quando l'audit è chiuso, perché è quello che Andrea
-  apre per vedere il prodotto.
+- Staging è un ambiente di rilascio: ci si pubblica solo quando l'audit è chiuso; è la versione che si mostra
+  ad Andrea, che non deve provarla. Le prove le esegue la squadra con browser automatizzato, emulatori,
+  utenti e dati di test.
 - Dopo il deploy su staging: smoke test in sola lettura sulle aree pubblicate.
 
 ## Per ogni area

@@ -12,7 +12,8 @@ skill specifiche (`squadra-database-firestore`, Supabase/Postgres del progetto).
 
 - **Progetto esistente**: prima le convenzioni già scritte nelle regole del progetto e già presenti nel
   codice (librerie, cartelle, modo di rappresentare i dati). Non si migra a un altro stile "perché è
-  meglio": una migrazione è un nuovo sviluppo che decide Andrea.
+  meglio": una migrazione è un nuovo sviluppo, deciso dall'architetto con seconda lettura; se tocca dati
+  reali o servizi a pagamento resta una decisione riservata ad Andrea.
 - **Progetto nuovo**: Material 3, stato con Riverpod, navigazione con go_router e rotte protette, modelli
   tipizzati (`freezed`/`json_serializable`), struttura per funzionalità.
 
@@ -37,8 +38,9 @@ Un widget che chiama il database è un errore di struttura, non una scorciatoia.
 
 - Prima di aggiungere un pacchetto: esiste già qualcosa nel progetto? È mantenuto? Funziona su web, Android,
   iOS e desktop se il progetto li copre? Serve davvero?
-- La motivazione va nella pull request. `pubspec.yaml` è zona protetta: una nuova dipendenza la approva
-  Andrea.
+- La motivazione va nella pull request. `pubspec.yaml` è zona protetta: una nuova dipendenza la aggiunge la
+  squadra con seconda lettura indipendente e voce nel registro. Se è a pagamento o cambia account/servizi,
+  decide Andrea.
 
 ## Prestazioni
 

@@ -20,6 +20,12 @@ Verifica **riproducendo** la segnalazione, poi classifica in un elenco chiuso e 
 
 Solo i `confermato` arrivano a `risolutore-bug`, nel repository di sviluppo.
 
+## Blocco funzionale
+
+Anche una correzione occupa il blocco dell'area (`docs/progetto/blocchi.md`): prima di iniziare
+`python3 scripts/blocco-squadra.py stato`; se è libero si occupa, se è occupato la segnalazione va in coda e
+Andrea riceve il motivo. Non si apre un ramo per una richiesta in coda.
+
 ## Correzione
 
 - Deve **ripristinare il comportamento già documentato** (requisiti/manuale): mai nuove funzioni, mai cambi
@@ -35,8 +41,12 @@ Solo i `confermato` arrivano a `risolutore-bug`, nel repository di sviluppo.
 Vera urgenza = servizio fermo, perdita di dati in corso, falla di sicurezza, blocco totale utenti.
 
 - Si mette tutto in pausa e si porta la correzione minima per la stessa strada sicura.
+- Anche l'hotfix **occupa il blocco** dell'area: l'urgenza autorizzata da Andrea salta la coda, **non** il
+  blocco. Se il blocco è di un'altra sessione, si avvisa Andrea e si decide insieme, senza liberarlo d'ufficio.
 - L'urgenza accorcia i tempi, **mai** le verifiche. Andrea va avvisato subito.
-- Se serve una migrazione o una zona protetta, è sviluppo: si prepara tutto e si chiede ad Andrea il tocco.
+- Se serve una migrazione o una zona protetta, è sviluppo: la squadra prepara, fa la seconda lettura
+  indipendente ed esegue. Si ferma e chiede ad Andrea solo per dati reali da cancellare o credenziali/account
+  riservati.
 - Se la produzione si rompe subito dopo un rilascio, la CI riporta da sola il codice alla versione
   precedente: è la prima difesa, prima di qualsiasi hotfix.
 - Un hotfix non nasce mai da una segnalazione esterna senza verifica della squadra.

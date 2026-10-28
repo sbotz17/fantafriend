@@ -7,12 +7,19 @@ description: Rilascio in staging o produzione con backup verificato, GO del guar
 
 Vale per correzioni **e** nuovi sviluppi, su staging e su produzione.
 
+## Un solo rilascio alla volta
+
+Il blocco `rilascio` è unico per progetto: due sessioni non pubblicano insieme. Prima di un deploy:
+`python3 scripts/blocco-squadra.py stato`; se `rilascio` è occupato, si aspetta o si mette in coda la
+richiesta. La coda è FIFO; solo Andrea può cambiare priorità.
+
 ## Gate obbligatorio (prima di ogni pubblicazione)
 
 `docs/progetto/test/audit-completa.md` deve essere eseguito e il report aggiornato con esiti reali e prove UI.
 
-Staging non è una sandbox: è ciò che Andrea apre. Quindi le prove si fanno su build locale o canale di
-anteprima e **solo dopo** si pubblica su staging.
+Staging non è una sandbox: è la versione che si mostra ad Andrea, che non deve provarla. Quindi le prove si
+fanno su build locale o canale di anteprima e **solo dopo** si pubblica su staging. Merge delle PR, deploy e
+verifica post-rilascio li esegue la squadra: non si chiede ad Andrea di fare il merge o di provare il sito.
 
 Servono, tutti insieme:
 
@@ -47,11 +54,15 @@ Nel dubbio la risposta è **NO-GO**.
 
 ## Regola d'oro dei dati
 
-- Nessun dato esistente viene alterato o perso: solo aggiunte.
-- Backup verificato **prima** di ogni modifica ai dati reali, anche piccola.
+- In **produzione** nessun dato esistente viene alterato o perso: solo aggiunte. Sul database di **test**
+  modifiche e cancellazioni sono ammesse.
+- Backup verificato **prima** di ogni modifica ai dati di **produzione**, anche piccola. Sul database di
+  **test** non serve un backup dedicato.
 - I backup non si cancellano e non si sovrascrivono, mai.
-- Cancellare è un limite invalicabile: si archivia o si disattiva; la cancellazione reale la esegue solo
-  Andrea dopo elenco esatto, motivo, backup e prova su copia.
+- Cancellare in **produzione** è un limite invalicabile: si archivia o si disattiva. La squadra prepara
+  elenco esatto, motivo, backup e prova su copia e aspetta il via di Andrea. Sul database di **test** la
+  squadra cancella liberamente dopo aver verificato host/ref in `docs/progetto/ambienti.md`; se non è certo, tratta
+  come produzione e si ferma.
 - Il ripristino del database di produzione è sempre una decisione di Andrea.
 
 ## Ambienti

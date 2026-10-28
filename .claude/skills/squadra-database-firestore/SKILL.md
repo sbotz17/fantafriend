@@ -71,5 +71,7 @@ Le regole sono l'unica autorizzazione reale: il client non protegge niente.
 - Progetti separati: staging con dati di test, produzione senza dati di test. Mai lo stesso progetto per
   entrambi.
 - Regole, indici e funzioni si pubblicano per ambiente, con il progetto esplicitato nel comando.
-- Prima di modificare dati reali: backup verificato. Cancellazioni di massa: mai da parte della squadra.
+- Prima di modificare dati di **produzione**: backup verificato. Cancellazioni di massa in produzione: mai da
+  parte della squadra. Sul database di **test** le cancellazioni sono ammesse dopo aver verificato host/ref
+  nella mappa degli ambienti del progetto.
 - Ogni rilascio chiude con una prova di lettura e scrittura reale e nessun `permission-denied` nei log.

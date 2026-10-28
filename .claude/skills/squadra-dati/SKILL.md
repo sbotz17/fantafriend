@@ -36,24 +36,27 @@ specifiche: `squadra-database-firestore` per Firebase, la skill Postgres/Supabas
 
 ## Migrazioni e modifiche
 
-- Ogni modifica allo schema è una **migrazione nuova, versionata**, non una modifica a mano sul database
-  reale.
-- Solo **aggiunte sicure**: niente cancellazione di tabelle, colonne o campi; niente cancellazioni o
-  aggiornamenti di massa; niente cambi di tipo che perdono informazioni. Le rimozioni sono un passo separato
-  deciso da Andrea.
+- Ogni modifica allo schema di **produzione** è una **migrazione nuova, versionata**, non una modifica a mano.
+- In **produzione** solo **aggiunte sicure**: niente cancellazione di tabelle, colonne o campi; niente
+  cancellazioni o aggiornamenti di massa; niente cambi di tipo che perdono informazioni. Le rimozioni sono un
+  passo separato deciso da Andrea. Sul database di **test** la squadra può fare modifiche e cancellazioni
+  mirate, dopo aver verificato host/ref in `docs/progetto/ambienti.md`; niente DROP/TRUNCATE di massa se non
+  richiesto esplicitamente.
 - Il codice precedente deve continuare a funzionare dopo la migrazione: prima si aggiunge, poi si usa, solo
   alla fine (con decisione) si rimuove.
 - Dati di partenza solo per tabelle di configurazione, mai dati di prova in produzione.
 
 ## Sicurezza dei dati
 
-- Backup verificato **prima** di ogni modifica ai dati reali, con impronta e posizione registrate.
+- Backup verificato **prima** di ogni modifica ai dati di **produzione**, con impronta e posizione
+  registrate. Sul database di **test** modifiche e cancellazioni sono ammesse senza backup dedicato.
 - I backup non si cancellano e non si sovrascrivono, mai.
-- Ambienti separati: il database di test non è quello di produzione, e i dati non si copiano dalla
-  produzione verso il test senza anonimizzarli.
+- Ambienti separati: il database di test (mappa in `docs/progetto/ambienti.md`; per Volty `gefnursnhofqouupnkvx`) non è quello di produzione, e i dati non
+  si copiano dalla produzione verso il test senza anonimizzarli.
 - Dati personali: solo quelli necessari, mai nei log o nei report.
 
 ## Verifica prima/dopo
 
-Per ogni modifica ai dati: conteggi e impronta (checksum o campione) prima e dopo devono coincidere, salvo
-le sole aggiunte previste. Una differenza non spiegata blocca il rilascio.
+Per ogni modifica ai dati di **produzione**: conteggi e impronta (checksum o campione) prima e dopo devono
+coincidere, salvo le sole aggiunte previste. Una differenza non spiegata blocca il rilascio. Sul database di
+**test** una cancellazione volontaria produce una differenza attesa, che si dichiara nel report.
