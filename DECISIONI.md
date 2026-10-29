@@ -66,3 +66,24 @@ non chiude un'area senza evidenza. Tester e validatore sono due sessioni distint
 sviluppato. Il gate tecnico non è ancora attivo in tutti i progetti: finché non lo è, il controllo è
 manuale e annotato, e il deploy resta vietato con aree non `PROVATA`. Se un guasto arriva ad Andrea, la squadra lo riconosce subito, corregge
 la causa e aggiunge il test che lo avrebbe fermato.
+
+## 2026-10-29 — La squadra non si ferma mai
+
+**Decisione di Andrea** (chat del 29/10/2026): «mettilo nelle regole della squadra» e «la squadra non si deve mai fermare».
+Una sessione non può chiudere il lavoro annunciando un passo («proseguo con…», «lo faccio ora») e poi
+fermarsi: ciò che si annuncia si esegue, oppure si mette in coda con motivo, codice del task e chi lo sblocca.
+
+**Effetto**
+- Durante le attese esterne (CI, deploy, servizi, documenti) si prosegue su altro lavoro utile e si riprende
+  il passo appena è possibile; non si chiede ad Andrea di riavviare la sessione.
+- Prima di chiudere una risposta si rilegge ciò che è stato annunciato: niente resta annunciato e non fatto.
+- Restano fermi solo i lavori dipendenti da un blocco di Andrea (`BLOCCO-SQUADRA.md` / `BLOCCO_SQUADRA`), da
+  una decisione riservata, da un segreto o accesso che solo Andrea può fornire, o dalla cancellazione dei dati
+  di produzione. Tutto il resto prosegue.
+
+**Propagazione**: il workflow `sync-squad-rules.yml` fonde `CLAUDE.md` nei blocchi `SQUADRA-AGENTI` dei progetti
+(`AGENTS.md`, o `CLAUDE.md` se manca) e copia `DECISIONI.md` e le skill `squadra-*`; ogni progetto allinea anche
+il proprio `CLAUDE.md`.
+
+**Seconda lettura indipendente**: sessione separata da chi scrive, prima del merge; esito annotato nel
+registro del progetto che ha aperto il lavoro.

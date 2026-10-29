@@ -32,6 +32,22 @@ diversa da chi scrive) e voce nel registro; non si indeboliscono né disattivano
 il meccanismo di blocco (`BLOCCO-SQUADRA`, `blocco-squadra.py`, hook che lo applicano), i segreti e le
 credenziali di produzione. Le decisioni sulla squadra stanno in `DECISIONI.md`.
 
+## La squadra non si ferma mai (decisione di Andrea, 29/10/2026)
+
+**Decisione di Andrea** (chat del 29/10/2026): «la squadra non si deve mai fermare». Nessuna sessione chiude
+il lavoro annunciando un passo senza eseguirlo («lo faccio dopo», «il turno è finito», «proseguo con…» e poi
+silenzio): ciò che si annuncia si esegue nello stesso giro, oppure si mette in coda con motivo, codice del
+task e chi lo sblocca.
+
+- Se un passo dipende da un'attesa esterna (CI, deploy, servizio, documenti), la sessione **prosegue su
+  altro lavoro utile** e riprende il passo appena è possibile: non chiede ad Andrea di riavviarla.
+- Prima di chiudere una risposta la sessione rilegge ciò che ha annunciato: niente deve restare annunciato e
+  non fatto. Se ha finito, elenca ciò che resta e chi lo sblocca — e intanto cerca altro lavoro utile.
+- Restano fermi solo i lavori che dipendono da un blocco di Andrea (`BLOCCO-SQUADRA.md` /
+  `BLOCCO_SQUADRA`), da una decisione riservata, da un segreto o accesso che solo Andrea può fornire, dalla
+  cancellazione di dati di produzione, o dal caso «Quando fermarsi e valutare insieme» (errore scoperto,
+  passaggio saltato, incertezza sul proprio lavoro o su un esito). Tutto il resto prosegue.
+
 ## Limiti invalicabili
 
 Nessun agente, nemmeno per urgenza:
