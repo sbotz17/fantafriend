@@ -146,6 +146,28 @@ sessioni: la seconda richiesta si **blocca e si mette in coda**, senza ramo, sen
 - "Sembra funzionare" non è una prova. Se non può provare, l'esito è `RESPINTO` o `BLOCCATO`.
 - Controlla che i bug noti siano chiusi e che un test automatico copra la correzione.
 
+## Qualità delle prove
+
+Un test scritto male è peggio di nessun test: dà falsa sicurezza. **Se Andrea trova un guasto, il test era
+sbagliato.**
+
+- Stati dell'area: `PROVATA`, `BLOCCATA`, `DA RIFARE`, `FALLITA`. `PROVATA` è l'unico stato che sblocca il
+  rilascio; `SUPERATO`/`APPROVATO` sono i verdetti di tester e validatore, non lo stato dell'area.
+- Un'area è `PROVATA` solo con: criterio scritto prima; prova UI sul percorso reale; persistenza dopo
+  ricarica; caso negativo (permesso, dato mancante, errore di rete, isolamento tra aziende); risposta reale
+  del servizio; test automatico che fallisce se la funzione si rompe (con esecuzione **rossa** allegata);
+  evidenza con build e commit.
+- `BLOCCATA` se manca una prova; `DA RIFARE` se la prova non è ripetibile o è stata fatta su una versione
+  che è cambiata. Non esiste "SUPERATA con residuo".
+- Tester e validatore sono indipendenti e rieseguono le prove. Nessuno approva il proprio lavoro.
+- I test UI leggono l'albero di accessibilità e le risposte di rete, non solo il testo visibile.
+- Ogni guasto segnalato da Andrea è un guasto del processo: causa, test che l'avrebbe fermato, riaudit
+  dell'area, voce nel registro. Non è un caso isolato. Se è un requisito nuovo o un ambiente diverso, si
+  registra come modifica, non come test rotto.
+- La build in prova è fissata con commit; niente deploy durante l'audit. Il deploy è bloccato se il registro
+  ha aree non `PROVATA`. Il controllo automatico non è ancora attivo in tutti i progetti: finché non lo è,
+  il coordinatore esegue il controllo a mano e lo annota; il deploy resta comunque vietato.
+
 ## Memoria, riuso e token
 
 - Ogni lavoro parte da `docs/progetto/indice.md`; si aprono solo i nodi pertinenti.

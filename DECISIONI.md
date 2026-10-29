@@ -37,3 +37,32 @@ con quale esito.
 **Da completare dalla squadra**: protezioni dei rami `staging`/`main` su GitHub con CI obbligatoria e divieto
 di push forzati, compatibili con il workflow di sincronizzazione delle regole. Va fatto quando non ci sono
 rilasci in corso; fino ad allora i gate valgono come regola, non come blocco tecnico.
+
+## 2026-10-29 — Se Andrea trova un guasto, il test era sbagliato
+
+**Decisione di Andrea** (chat del 29/10/2026): la squadra deve essere meglio di una persona e di lui. Se
+Andrea trova una cosa rotta, la causa è che i test non sono stati fatti correttamente; tutti gli audit
+vanno rivisti. Non deve succedere.
+
+**Effetto immediato**
+- Tutte le aree dell'audit sono riaperte, comprese quelle segnate `SUPERATA` con riserve. Lo stato di
+  partenza è `DA RIFARE`; le aree con un bug confermato restano `FALLITA` finché il ritorno non è chiuso.
+  Il coordinatore aggiorna i registri dei progetti entro il 31/10/2026; il validatore verifica che la
+  riapertura sia stata fatta e che nessuna area resti `SUPERATA`.
+- Un'area è `PROVATA` solo con lo standard della skill `squadra-audit`: criterio scritto prima, prova UI
+  reale, persistenza, caso negativo, risposta reale del servizio, test che fallisce se la funzione si
+  rompe, evidenza con build e commit, tester e validatore indipendenti.
+- Non si chiude un'area con "resta da provare": è `DA RIFARE` o `BLOCCATA`.
+- I test UI leggono l'albero di accessibilità e le risposte di rete, non solo il testo visibile.
+- Ogni guasto segnalato da Andrea è un guasto del processo: causa, test che l'avrebbe fermato, riaudit
+  dell'area, voce nel registro. Non è un caso isolato.
+- La build in prova è fissata con commit; niente deploy durante l'audit. Il deploy è bloccato se il registro
+  ha aree non `PROVATA`.
+- Il lavoro della squadra deve essere **ripetibile e verificabile**: una persona si distrae, un test
+  ripetibile no. Un test scritto male è peggio di nessun test.
+
+**Responsabilità**: chi produce dichiara cosa ha provato e cosa no; chi verifica riesegue; il coordinatore
+non chiude un'area senza evidenza. Tester e validatore sono due sessioni distinte, mai quella che ha
+sviluppato. Il gate tecnico non è ancora attivo in tutti i progetti: finché non lo è, il controllo è
+manuale e annotato, e il deploy resta vietato con aree non `PROVATA`. Se un guasto arriva ad Andrea, la squadra lo riconosce subito, corregge
+la causa e aggiunge il test che lo avrebbe fermato.

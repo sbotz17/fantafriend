@@ -23,7 +23,8 @@ verifica post-rilascio li esegue la squadra: non si chiede ad Andrea di fare il 
 
 Servono, tutti insieme:
 
-1. audit-completa eseguito, nessuna area `BLOCCATA`;
+1. audit-completa eseguito, **nessuna area diversa da `PROVATA`**: `BLOCCATA`, `DA RIFARE` e `FALLITA`
+   bloccano il rilascio;
 2. `tester` → **SUPERATO**;
 3. `validatore` → **APPROVATO**;
 4. CI verde;
