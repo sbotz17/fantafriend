@@ -194,6 +194,32 @@ sbagliato.**
 - Audit a basso consumo: un tester/validatore per ondata, test una volta per blocco, output riassunto,
   screenshot solo sui fallimenti, massimo 2 tentativi per area.
 
+## Costi dei modelli (decisione di Andrea, 30/10/2026)
+
+DeepSeek a pagamento **solo dove serve ragionare**; il resto su modelli gratuiti.
+
+- **A pagamento**: `sviluppatore-backend`, `risolutore-bug`, `architetto`, `dba`, `revisore-sicurezza`,
+  `guardiano-produzione` su `deepseek/deepseek-v4-pro#high`; `sviluppatore-frontend` su
+  `deepseek/deepseek-flash#high`.
+- **Il `validatore` resta sempre a pagamento** (`deepseek/deepseek-v4-pro#high`): richiesta esplicita di
+  Andrea, unica eccezione al criterio «test e controlli gratis». Non va riportato su un modello gratuito.
+- **Gratuiti** (`opencode/deepseek-v4.1-flash-free`, `#high` per coordinatore, analista, designer-frontend,
+  tester; `#low` per gestore-ritorni, redattore-manuale, marketing) e modello predefinito delle sessioni.
+- `deepseek/deepseek-flash#low` **non è mai il modello predefinito**: costa quasi come `#high` (~0,2
+  centesimi di differenza a sessione) e ragiona meno.
+- Lo strumento è globale della macchina: `~/.config/opencode/scripts/modello-agenti.sh`. Se non è
+  disponibile, si cambia a mano la riga `model:` del file dell'agente.
+- Se il modello gratuito è occupato o in limite d'uso: `~/.config/opencode/scripts/modello-agenti.sh ripiego`
+  (`deepseek/deepseek-flash#high`) e, quando torna disponibile, `... modello-agenti.sh gratis`.
+  `... modello-agenti.sh stato` elenca i modelli e avvisa se un agente che deve restare a pagamento
+  finisce su un gratuito.
+- La spesa vera sono le sessioni interattive lunghe: `/new` quando si cambia argomento.
+- Numeri e motivi: `DECISIONI.md`, voce 30/10/2026.
+- **Limite noto**: qui c'è il criterio, non l'impostazione tecnica. Le righe `model:` vivono nella
+  configurazione locale degli agenti (`.opencode/agents/`, non versionata), quindi la regola vale come
+  criterio per chi lavora su questa macchina; negli altri progetti non c'è nulla da allineare a livello di
+  repository.
+
 ## Skill operative
 
 Le procedure vivono in dieci skill, caricate solo quando servono:

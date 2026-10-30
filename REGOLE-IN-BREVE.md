@@ -274,6 +274,23 @@ La fonte globale è `sbotz17/squadraalphalab` (`CLAUDE.md`, `DECISIONI.md`, `ski
 | **Worker** | Un piccolo server che esegue operazioni protette (invii, integrazioni) |
 | **Regole di sicurezza** | Le regole che decidono chi può leggere o scrivere i dati |
 
+## 15. Quanto spendiamo in modelli
+
+- DeepSeek a pagamento si usa **solo per lo sviluppo** e per i controlli più delicati: chi scrive il codice,
+  chi corregge i bug, chi fa l'architettura, il database, la sicurezza, il GO/NO-GO di produzione e il
+  **validatore**.
+- Test, analisi, design, manuale e marketing usano modelli **gratuiti**: fanno lo stesso lavoro e non
+  consumano crediti.
+- Il **validatore resta sempre a pagamento**: lo ha chiesto Andrea, perché è l'ultimo controllo prima di
+  pubblicare.
+- Se il modello gratuito è occupato, si passa al ripiego a pagamento più economico con
+  `~/.config/opencode/scripts/modello-agenti.sh ripiego`, e si torna al gratuito con lo stesso comando
+  seguito da `gratis`. Se il comando non c'è, si cambia a mano la riga `model:` dell'agente.
+- Il modello `#low` (economico ma con meno ragionamento) non si usa come predefinito: fa risparmiare pochi
+  centesimi e rischia di far rifare il lavoro.
+- Il costo più alto non sono i test, ma le **sessioni di lavoro lunghe**: conviene aprirne una nuova quando
+  si cambia argomento.
+
 ---
 
 ## In una riga

@@ -87,3 +87,40 @@ il proprio `CLAUDE.md`.
 
 **Seconda lettura indipendente**: sessione separata da chi scrive, prima del merge; esito annotato nel
 registro del progetto che ha aperto il lavoro.
+
+## 2026-10-30 — Costi dei modelli: DeepSeek a pagamento solo per lo sviluppo
+
+**Decisione di Andrea** (chat del 30/10/2026): consumare meno crediti DeepSeek usando il modello a pagamento
+solo per lo sviluppo; test, analisi e controlli su modelli gratuiti performanti. Su richiesta successiva,
+**il validatore resta l'unico controllo sempre a pagamento**.
+
+**Numeri misurati a mano** sul database locale di OpenCode (sessioni degli ultimi 30 giorni; non sono
+riproducibili dal repository): tester 23 sessioni = 0,30 $ (1,3 centesimi l'una),
+analista 8 = 0,08 $, validatore `v4-pro#high` 28 = 1,12 $ (4 centesimi), sviluppatore-backend 38 = 2,29 $;
+la **sessione interattiva principale** 12 sessioni = 10,84 $ (90 centesimi l'una, il 65% della spesa, con
+194 milioni di token di cache riletta per sessione).
+
+**Effetto**
+- Modello predefinito delle sessioni: `opencode/deepseek-v4.1-flash-free` (gratuito).
+- Agenti gratuiti: `coordinatore`, `analista`, `designer-frontend`, `tester` (`#high`); `gestore-ritorni`,
+  `redattore-manuale`, `marketing` (`#low`).
+- Agenti a pagamento: `sviluppatore-backend`, `risolutore-bug`, `architetto`, `dba`, `revisore-sicurezza`,
+  `guardiano-produzione`, **`validatore`** su `deepseek/deepseek-v4-pro#high`; `sviluppatore-frontend` su
+  `deepseek/deepseek-flash#high`.
+- `deepseek/deepseek-flash#low` non è mai il predefinito: il risparmio rispetto a `#high` è di ~0,2 centesimi
+  a sessione, il calo di ragionamento no.
+- Ripiego: se il modello gratuito è occupato o in limite, `~/.config/opencode/scripts/modello-agenti.sh
+  ripiego` porta gli agenti gratuiti su `deepseek/deepseek-flash#high`; `gratis` li riporta indietro; `stato`
+  elenca i modelli e avvisa se un agente a pagamento finisce su un gratuito. Lo script è globale della
+  macchina (non versionato): la regola è il criterio, le righe `model:` stanno nella configurazione locale
+  degli agenti.
+- La chiave DeepSeek vive in `~/.config/opencode/deepseek.key` (permessi 600) e la configurazione la legge con
+  `{file:...}`: non si scrive nei file di configurazione né nel repository.
+- Leva sui costi: sessioni interattive più corte (`/new` quando si cambia argomento).
+- Se un modello gratuito dà esiti incoerenti in un audit o in una validazione, quell'agente torna a pagamento
+  prima di chiudere l'area.
+
+**Prove fatte**: i modelli gratuiti rispondono e usano gli strumenti (provato su `deepseek-v4.1-flash-free`
+`#high`, `glm-5.3-flash-free`, `mimo-v2.6-flash-free`); l'agente `tester` parte con il modello gratuito;
+l'agente `validatore` parte con `deepseek-v4-pro`; DeepSeek a pagamento risponde ancora con la chiave da file;
+il giro completo `ripiego` → `gratis` dello script lascia invariati gli agenti a pagamento.
