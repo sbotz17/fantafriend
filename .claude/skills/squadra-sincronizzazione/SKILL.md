@@ -20,6 +20,8 @@ La fonte globale è il repository `sbotz17/squadraalphalab` (`CLAUDE.md` + `skil
 - `CLAUDE.md` — nucleo breve, caricato a ogni sessione: identità, limiti, ruoli, gate di qualità.
   Resta **breve** (indicativamente entro ~170 righe); i dettagli vanno nelle skill.
 - `DECISIONI.md` — decisioni di Andrea sulla squadra, con data ed effetto; si cita nel registro del progetto.
+- `REGOLE-IN-BREVE.md` — riassunto di **tutte** le regole in italiano semplice, per chiunque. Si aggiorna a
+  ogni cambio di regola, nello stesso giro, e si sincronizza nei progetti.
 - `skills/squadra-*/SKILL.md` — procedure caricate solo quando servono.
 - `archive/` — versione integrale storica, solo consultazione.
 

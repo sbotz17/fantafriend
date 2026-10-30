@@ -40,8 +40,7 @@ specifiche: `squadra-database-firestore` per Firebase, la skill Postgres/Supabas
 - In **produzione** solo **aggiunte sicure**: niente cancellazione di tabelle, colonne o campi; niente
   cancellazioni o aggiornamenti di massa; niente cambi di tipo che perdono informazioni. Le rimozioni sono un
   passo separato deciso da Andrea. Sul database di **test** la squadra può fare modifiche e cancellazioni
-  mirate, dopo aver verificato host/ref in `docs/progetto/ambienti.md`; niente DROP/TRUNCATE di massa se non
-  richiesto esplicitamente.
+  mirate, dopo aver verificato host/ref in `docs/progetto/ambienti.md`; niente DROP/TRUNCATE di massa se non richiesti dal coordinatore e motivati nel task.
 - Il codice precedente deve continuare a funzionare dopo la migrazione: prima si aggiunge, poi si usa, solo
   alla fine (con decisione) si rimuove.
 - Dati di partenza solo per tabelle di configurazione, mai dati di prova in produzione.

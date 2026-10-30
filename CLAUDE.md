@@ -30,7 +30,8 @@ operativa: la cancellazione dei dati di produzione, che la squadra prepara ma no
 Regole, CI, hook e zone protette le aggiorna la squadra con **seconda lettura indipendente** (sessione
 diversa da chi scrive) e voce nel registro; non si indeboliscono né disattivano i controlli. Non si toccano
 il meccanismo di blocco (`BLOCCO-SQUADRA`, `blocco-squadra.py`, hook che lo applicano), i segreti e le
-credenziali di produzione. Le decisioni sulla squadra stanno in `DECISIONI.md`.
+credenziali di produzione. Le decisioni sulla squadra stanno in `DECISIONI.md`. Il riassunto semplice di
+tutte le regole è `REGOLE-IN-BREVE.md`: si aggiorna a ogni cambio di regola, nello stesso giro.
 
 ## La squadra non si ferma mai (decisione di Andrea, 29/10/2026)
 
@@ -119,7 +120,8 @@ Un task = un obiettivo verificabile, di norma un file, una schermata o un serviz
 - Mai push diretto su `main` o ramo di produzione; si passa da PR e controlli.
 - Le PR le apre e le unisce il coordinatore dopo i gate; Andrea non deve unire né pubblicare nulla.
 - Unica eccezione al push diretto: il workflow di sincronizzazione delle regole aggiorna solo i file di
-  regole (`CLAUDE.md`/`AGENTS.md` e skill), mai codice, dati o configurazioni.
+  regole (`CLAUDE.md`/`AGENTS.md`, `DECISIONI.md`, `REGOLE-IN-BREVE.md` e skill), mai codice, dati o
+  configurazioni.
 - Verificare sempre `pwd` e `git remote -v` prima di modificare o pubblicare.
 
 ## Staging è un ambiente di rilascio
