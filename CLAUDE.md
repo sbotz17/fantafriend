@@ -120,8 +120,8 @@ Un task = un obiettivo verificabile, di norma un file, una schermata o un serviz
 - Mai push diretto su `main` o ramo di produzione; si passa da PR e controlli.
 - Le PR le apre e le unisce il coordinatore dopo i gate; Andrea non deve unire né pubblicare nulla.
 - Unica eccezione al push diretto: il workflow di sincronizzazione delle regole aggiorna solo i file di
-  regole (`CLAUDE.md`/`AGENTS.md`, `DECISIONI.md`, `REGOLE-IN-BREVE.md` e skill), mai codice, dati o
-  configurazioni.
+  regole (`CLAUDE.md`/`AGENTS.md`, `DECISIONI.md`, `REGOLE-IN-BREVE.md`, le skill e lo strumento
+  `scripts/modello-agenti.sh`), mai il codice applicativo dei progetti, i dati o le configurazioni.
 - Verificare sempre `pwd` e `git remote -v` prima di modificare o pubblicare.
 
 ## Staging è un ambiente di rilascio
@@ -207,18 +207,18 @@ DeepSeek a pagamento **solo dove serve ragionare**; il resto su modelli gratuiti
   tester; `#low` per gestore-ritorni, redattore-manuale, marketing) e modello predefinito delle sessioni.
 - `deepseek/deepseek-flash#low` **non è mai il modello predefinito**: costa quasi come `#high` (~0,2
   centesimi di differenza a sessione) e ragiona meno.
-- Lo strumento è globale della macchina: `~/.config/opencode/scripts/modello-agenti.sh`. Se non è
-  disponibile, si cambia a mano la riga `model:` del file dell'agente.
-- Se il modello gratuito è occupato o in limite d'uso: `~/.config/opencode/scripts/modello-agenti.sh ripiego`
-  (`deepseek/deepseek-flash#high`) e, quando torna disponibile, `... modello-agenti.sh gratis`.
-  `... modello-agenti.sh stato` elenca i modelli e avvisa se un agente che deve restare a pagamento
+- Lo strumento è `scripts/modello-agenti.sh` in ogni progetto: lo copia la sincronizzazione delle regole e
+  non si personalizza per progetto (copia globale di riserva: `~/.config/opencode/scripts/modello-agenti.sh`).
+  Se non è disponibile, si cambia a mano la riga `model:` del file dell'agente.
+- Se il modello gratuito è occupato o in limite d'uso: `./scripts/modello-agenti.sh ripiego`
+  (`deepseek/deepseek-flash#high`) e, quando torna disponibile, `./scripts/modello-agenti.sh gratis`.
+  `./scripts/modello-agenti.sh stato` elenca i modelli e avvisa se un agente che deve restare a pagamento
   finisce su un gratuito.
 - La spesa vera sono le sessioni interattive lunghe: `/new` quando si cambia argomento.
 - Numeri e motivi: `DECISIONI.md`, voce 30/10/2026.
-- **Limite noto**: qui c'è il criterio, non l'impostazione tecnica. Le righe `model:` vivono nella
-  configurazione locale degli agenti (`.opencode/agents/`, non versionata), quindi la regola vale come
-  criterio per chi lavora su questa macchina; negli altri progetti non c'è nulla da allineare a livello di
-  repository.
+- **Limite noto**: qui ci sono il criterio e lo strumento, non l'impostazione tecnica. Le righe `model:`
+  vivono nella configurazione locale degli agenti (`.opencode/agents/`, non versionata): lo script allinea
+  gli agenti presenti sulla macchina dove viene eseguito, quindi va lanciato nel progetto in cui si lavora.
 
 ## Skill operative
 

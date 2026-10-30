@@ -124,3 +124,25 @@ la **sessione interattiva principale** 12 sessioni = 10,84 $ (90 centesimi l'una
 `#high`, `glm-5.3-flash-free`, `mimo-v2.6-flash-free`); l'agente `tester` parte con il modello gratuito;
 l'agente `validatore` parte con `deepseek-v4-pro`; DeepSeek a pagamento risponde ancora con la chiave da file;
 il giro completo `ripiego` → `gratis` dello script lascia invariati gli agenti a pagamento.
+
+## 2026-10-30 — Lo strumento dei modelli arriva in ogni progetto
+
+**Perché**: la regola del 30/10/2026 citava uno strumento (`modello-agenti.sh`) che esisteva solo sulla
+macchina di chi l'aveva scritto; negli altri progetti il comando non c'era. Segnalato dalla seconda lettura
+indipendente della PR #6.
+
+**Effetto**
+- Il file `scripts/modello-agenti.sh` sta in questo repository e `sync-squad-rules.yml` lo copia in
+  `scripts/` di ogni progetto a ogni sincronizzazione, come le skill: file unico, mai personalizzato.
+- Funziona da qualunque cartella del progetto (cerca `.opencode/agents` accanto allo script e poi nella
+  cartella corrente); se un progetto non ha agenti OpenCode, esce con un messaggio chiaro senza toccare nulla.
+- `stato` elenca i modelli e avvisa se un agente che deve restare a pagamento finisce su un modello gratuito;
+  `gratis` e `ripiego` cambiano **solo** gli agenti di test e controllo.
+- La regola in `CLAUDE.md` ora dice il percorso nel progetto, con la copia globale
+  `~/.config/opencode/scripts/modello-agenti.sh` come riserva.
+- L'eccezione al divieto di push diretto del workflow di sincronizzazione comprende ora anche questo
+  strumento: resta escluso tutto il resto (codice, dati, configurazioni).
+
+**Prove richieste prima del merge**: `bash -n` e `controlla-riassunto.py` verdi; esecuzione reale di
+`stato` da una copia del progetto; verifica dopo il merge che almeno un progetto abbia ricevuto il file e
+che il comando funzioni lì.

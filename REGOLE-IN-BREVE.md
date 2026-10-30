@@ -189,7 +189,8 @@ prova. Tester e validatore sono indipendenti: nessuno approva il proprio lavoro.
   pubblica solo con l’audit chiuso, tester SUPERATO e validatore APPROVATO.
 - **Produzione**: separata, solo codice validato, niente dati di test.
 - Mai push diretto su `main` o sul ramo di produzione: si passa da pull request e controlli.
-- Unica eccezione: il workflow che sincronizza le regole aggiorna solo i file di regole, mai codice o dati.
+- Unica eccezione: il workflow che sincronizza le regole aggiorna solo i file di regole, le skill e lo
+  strumento `scripts/modello-agenti.sh`, mai il codice applicativo dei progetti o i dati.
 - Dopo ogni pubblicazione: smoke test in sola lettura; se qualcosa non va, si torna indietro.
 
 Le prove si fanno su build locale o canale di anteprima, **prima** di pubblicare su staging.
@@ -234,7 +235,8 @@ Nei progetti collegati al registro **Avanza**, ogni richiesta è un task, **prim
 
 ## 12. Cambiare le regole
 
-La fonte globale è `sbotz17/squadraalphalab` (`CLAUDE.md`, `DECISIONI.md`, `skills/`, questo riassunto).
+La fonte globale è `sbotz17/squadraalphalab` (`CLAUDE.md`, `DECISIONI.md`, `skills/`, lo strumento
+`scripts/modello-agenti.sh` e questo riassunto).
 
 - Ogni modifica a una regola si replica subito nei progetti, nello stesso giro.
 - Il lavoro non è concluso finché fonte, copie globali e regole dei progetti sono aggiornate e pushate.
@@ -283,9 +285,10 @@ La fonte globale è `sbotz17/squadraalphalab` (`CLAUDE.md`, `DECISIONI.md`, `ski
   consumano crediti.
 - Il **validatore resta sempre a pagamento**: lo ha chiesto Andrea, perché è l'ultimo controllo prima di
   pubblicare.
-- Se il modello gratuito è occupato, si passa al ripiego a pagamento più economico con
-  `~/.config/opencode/scripts/modello-agenti.sh ripiego`, e si torna al gratuito con lo stesso comando
-  seguito da `gratis`. Se il comando non c'è, si cambia a mano la riga `model:` dell'agente.
+- Ogni progetto ha lo strumento `scripts/modello-agenti.sh` (lo mette lì la sincronizzazione delle regole).
+  Se il modello gratuito è occupato, si passa al ripiego a pagamento più economico con
+  `./scripts/modello-agenti.sh ripiego`, e si torna al gratuito con `./scripts/modello-agenti.sh gratis`.
+  Se il comando non c'è, si cambia a mano la riga `model:` dell'agente.
 - Il modello `#low` (economico ma con meno ragionamento) non si usa come predefinito: fa risparmiare pochi
   centesimi e rischia di far rifare il lavoro.
 - Il costo più alto non sono i test, ma le **sessioni di lavoro lunghe**: conviene aprirne una nuova quando
