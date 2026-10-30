@@ -64,3 +64,20 @@ riservata ad Andrea.
 Ogni lavoro su branch dedicato: `feature/...`, `fix/R-<n>`, `hotfix/R-<n>`,
 `claude/segnalazione-<id>`. Mai lavorare direttamente su `main` o ramo di produzione; le modifiche entrano
 solo con pull request e controlli superati.
+
+## Cartelle delle credenziali sul computer di Andrea
+
+Le credenziali dei progetti stanno in `~/Progetti locali/`, **una cartella per progetto** con il nome
+leggibile (`Volty`, `Avanza`, `Commerciali`, `Campionato Broccoli`, `Fantami`, `Fantafriend`). Dentro:
+`credenziali-produzione.env`, `credenziali-test.env` e un `LEGGIMI.txt` con le regole.
+
+- Cartelle con permessi `700`, file `600`, **fuori da `Documenti`** e dalle cartelle sincronizzate (iCloud,
+  Drive): lì le chiavi non vanno.
+- **Ogni progetto nuovo** riceve subito la sua cartella con il `LEGGIMI.txt`, quando entra in `projects.json`
+  o alla prima richiesta: lo fa la squadra, senza chiedere ad Andrea.
+- La squadra non usa i valori per accedere alla produzione: quando Andrea li mette nella cartella e dice
+  «fatto», li trasferisce nei secret di GitHub **senza stamparli** e verifica solo che i nomi risultino
+  presenti.
+- Se un file di credenziali è finito per errore in una cartella sincronizzata o nel repository, si sposta e si
+  annota nel registro. Se la chiave esposta è di **test**, la squadra può ruotarla; se è di **produzione**, la
+  ruota **Andrea**: la squadra non cambia mai credenziali di produzione (limite invalicabile n. 4).
