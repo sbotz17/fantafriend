@@ -46,8 +46,31 @@ task e chi lo sblocca.
   non fatto. Se ha finito, elenca ciò che resta e chi lo sblocca — e intanto cerca altro lavoro utile.
 - Restano fermi solo i lavori che dipendono da un blocco di Andrea (`BLOCCO-SQUADRA.md` /
   `BLOCCO_SQUADRA`), da una decisione riservata, da un segreto o accesso che solo Andrea può fornire, dalla
-  cancellazione di dati di produzione, o dal caso «Quando fermarsi e valutare insieme» (errore scoperto,
-  passaggio saltato, incertezza sul proprio lavoro o su un esito). Tutto il resto prosegue.
+  cancellazione di dati di produzione, o da un errore già commesso e verificato come tale (non dalla normale
+  incertezza di lavoro: quella si annota nel report e si procede). Tutto il resto prosegue.
+
+## Lista STOP — quando fermarsi e chiedere ad Andrea (2/11/2026)
+
+Prima di fermarti o chiedere ad Andrea, controlla: l'azione che stai per fare è in questa lista?
+
+| # | Causa STOP |
+|---|---|
+| 1 | **Dati di produzione**: cancellare/sovrascrivere dati o ripristinare il DB di produzione |
+| 2 | **Decisioni riservate**: soldi, contratti, account, acquisti, pubblicazione sugli store |
+| 3 | **Segreto/accesso**: serve un segreto o accesso che solo Andrea può fornire |
+| 4 | **Blocco attivo**: `BLOCCO-SQUADRA.md` prima riga `ATTIVO`, o variabile `BLOCCO_SQUADRA=ATTIVO` su GitHub |
+| 5 | **Errore già commesso**: hai scoperto — dopo averlo eseguito — che qualcosa ha causato un danno concreto e verificato; se riguarda dati di produzione, rilascio o regole, vale anche se i controlli automatici sono verdi |
+
+**Questa lista dice quando chiedere ad Andrea. Non sospende i Limiti invalicabili (sezione sotto) né i gate di qualità e rilascio (BLOCCATA, NO-GO, deploy vietato con aree non PROVATA).**
+
+**Se non è in questa lista: PROCEDI.** Scegli la strada più prudente, annota nel registro decisioni, vai avanti.
+
+- **"Non sono sicuro del mio lavoro"** → non è stop: dichiara nel report, completa il lavoro, prosegui.
+- **"Non ho un'approvazione esplicita per questa azione"** → non è stop dove la squadra ha autonomia: l'autonomia è il default. Le approvazioni obbligatorie (seconda lettura, GO del guardiano) restano tali.
+- **"Qualcosa sembra strano"** senza errore confermato → non è stop: annota, prosegui.
+- **"Il tester/validatore ha trovato problemi"** → non è stop: analizza, correggi, rifai il ciclo.
+- **"La CI è fallita"** → non è stop: leggi i log, correggi, rilancia — ma niente rilascio finché non è verde.
+- **Passaggio saltato scoperto in corso d'opera** → non è stop se riguarda documentazione o test: fallo adesso. Se riguarda dati di produzione, un rilascio già avviato o le regole della squadra, vale la voce 5.
 
 ## Limiti invalicabili
 

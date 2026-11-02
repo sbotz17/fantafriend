@@ -146,3 +146,51 @@ indipendente della PR #6.
 **Prove richieste prima del merge**: `bash -n` e `controlla-riassunto.py` verdi; esecuzione reale di
 `stato` da una copia del progetto; verifica dopo il merge che almeno un progetto abbia ricevuto il file e
 che il comando funzioni lì.
+
+## 2026-11-02 — Lista STOP: chiarezza sull'autonomia operativa
+
+**Decisione di Andrea** (chat del 2/11/2026): la squadra continua a bloccarsi troppo spesso anche dove
+ha piena autonomia, sia in Claude Code che in OpenCode. Chiede di risolvere una volta per tutte la
+problematica perché la squadra lavori senza il suo consenso dove non serve e dove è autonoma.
+
+**Contesto**: la decisione del 29/10/2026 «la squadra non si deve mai fermare» era già in vigore, ma la
+clausola «incertezza sul proprio lavoro o su un esito» che seguiva (nella stessa sezione) la contraddiceva
+in pratica: un modello linguistico non è mai «del tutto sicuro», quindi interpretava quella clausola come
+motivo di blocco quasi sempre. Questa voce chiarisce e integra la decisione del 29/10.
+
+**Effetto**
+- La clausola «incertezza sul proprio lavoro o su un esito» è rimossa come causa di stop autonomo.
+  Sostituita da «errore già commesso e verificato come tale»: solo un danno concreto già avvenuto, non
+  l'incertezza preventiva normale durante il lavoro.
+- Aggiunta la sezione **"Lista STOP"** in `CLAUDE.md`: 5 cause di blocco con chiarimento esplicito.
+  Tutto ciò che non è in lista: PROCEDI.
+- Chiarito che la Lista STOP dice quando chiedere ad Andrea; non sospende i Limiti invalicabili né i gate
+  di qualità (BLOCCATA, NO-GO, deploy vietato con aree non PROVATA).
+- Chiarito che la normale incertezza si annota nel report e non blocca; le approvazioni obbligatorie
+  (seconda lettura, GO del guardiano) restano tali.
+
+**File aggiornati in questa PR** (ramo `regole/lista-stop-autonomia`, PR #8):
+- `squadraalphalab/CLAUDE.md` (fonte globale)
+- `squadraalphalab/DECISIONI.md` (questa voce)
+
+**File aggiornati fuori da questa PR** (modifiche locali non committate, in coda al blocco
+`processi-squadra` di Volty — posizione 2):
+- `volty-staging/CLAUDE.md`: sezione "Quando fermarsi e valutare insieme" riscritta
+- `volty-staging/AGENTS.md`: Lista STOP aggiunta nel blocco `SQUADRA-AGENTI` (sarà sovrascritta dal sync)
+
+**Nota tecnica — `~/.claude/CLAUDE.md`**: la copia locale del nucleo sul computer di Andrea non è
+aggiornata in questa PR perché la modalità auto-mode di Claude Code classifica la modifica ai propri file
+di configurazione come auto-modifica e la blocca. Fino all'allineamento, le sessioni Claude Code caricano
+la clausola «incertezza» nella vecchia forma; le sessioni OpenCode usano `AGENTS.md` (che verrà aggiornato
+dal sync) e non subiscono questo problema. Per allineare `~/.claude/CLAUDE.md`: lanciare
+`local-setup/sync-regole.sh` dopo il merge, oppure aprirlo in una sessione interattiva e sostituire
+«incertezza sul proprio lavoro o su un esito» con «errore già commesso e verificato come tale», poi
+aggiungere la sezione "Lista STOP" subito dopo la sezione "La squadra non si ferma mai".
+
+**Seconda lettura indipendente**: condotta il 2/11/2026 dal `validatore` (sessione separata, agente
+`af02219123b7084f8`). Primo esito: RESPINTO — 5 problemi corretti nella stessa sessione (voce 5 mancante
+nella tabella, passaggio saltato su produzione/rilascio/regole, conflitto con Limiti invalicabili e gate,
+DECISIONI.md inesatto, clausola 24 ore in volty-staging). Secondo esito (agente `a5a602294cf790bbe`):
+**APPROVATO** — tutti i 7 punti verificati OK. Nota minore non bloccante: la voce 5 parla di "danno
+concreto e verificato", ma un passaggio saltato su produzione/rilascio può non aver ancora causato danni;
+il caso è comunque coperto dal disclaimer e dai gate di qualità.
