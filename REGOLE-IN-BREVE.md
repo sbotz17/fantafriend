@@ -7,7 +7,7 @@ scritto per essere letto anche da chi non è tecnico. Le regole complete sono in
 **Regola importante**: ogni volta che cambia una regola, questo documento si aggiorna **nello stesso giro**.
 Non è un riassunto “una volta per tutte”.
 
-**Ultimo aggiornamento**: 30/10/2026
+**Ultimo aggiornamento**: 02/11/2026
 
 ---
 
@@ -39,8 +39,10 @@ stesso giro, oppure si mette in coda con motivo, codice del task e chi lo sblocc
   utile e si riprende il passo appena possibile. Non si chiede ad Andrea di riavviare la sessione.
 - Prima di chiudere una risposta si rilegge ciò che si è annunciato: niente deve restare annunciato e non
   fatto.
-- Ci si ferma solo per: blocco di Andrea, decisione riservata, segreto o accesso che solo Andrea può dare,
-  cancellazione di dati di produzione, oppure un errore scoperto o un dubbio sul proprio lavoro.
+- Ci si ferma solo per le 5 cause della **Lista STOP** (in `CLAUDE.md`): blocco di Andrea, decisione
+  riservata, segreto o accesso che solo Andrea può dare, cancellazione di dati di produzione, errore già
+  commesso e verificato come tale. La normale incertezza si annota nel report e non blocca.
+- **Se non è in Lista STOP: PROCEDI.** Scegli la strada più prudente e annota nel registro decisioni.
 
 ### Andrea non esegue il lavoro
 
