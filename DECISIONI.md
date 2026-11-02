@@ -194,3 +194,39 @@ DECISIONI.md inesatto, clausola 24 ore in volty-staging). Secondo esito (agente 
 **APPROVATO** — tutti i 7 punti verificati OK. Nota minore non bloccante: la voce 5 parla di "danno
 concreto e verificato", ma un passaggio saltato su produzione/rilascio può non aver ancora causato danni;
 il caso è comunque coperto dal disclaimer e dai gate di qualità.
+
+## 2026-11-01 — Avviso di fine lavoro su Telegram
+
+**Decisione di Andrea** (chat del 01/11/2026): ogni finestra aperta e ogni sessione eseguita in OpenCode e in
+Claude Code (anche nelle sessioni Code dell'app Desktop), finito il lavoro richiesto, lo comunica sulla chat Telegram configurata. Il messaggio deve
+dire il numero di task, il progetto e la richiesta fatta.
+
+**Effetto**
+- OpenCode: plugin globale `~/.config/opencode/plugins/notifica-telegram`. Scatta a fine turno (ultimo passo
+  del modello con `finish` diverso da `tool-calls`). Le sessioni figlie non avvisano.
+- Claude Code (comprese le sessioni Code dentro l'app Desktop): hook globale `Stop` in
+  `~/.claude/settings.json`, che legge il transcript della sessione e ricava progetto, task completati,
+  richiesta ed esito. Le chat normali dell'app Claude non eseguono hook: lì non arriva nulla.
+- Canale: `@volty_avvisi_bot` (canale «Volty Avvisi», T-45). Il token si legge dalle credenziali locali
+  di Volty; la chat id sta in `~/.config/notifiche/telegram.env` (permessi 600).
+- Formato unico e registro in `~/.local/share/notifiche/`. Un turno concluso produce un solo messaggio,
+  anche con più istanze del plugin caricate su progetti diversi (blocco atomico per sessione e messaggio).
+- Se l'esito termina con una domanda (`?`) il messaggio è marcato «In attesa di una risposta» invece di
+  «Lavoro terminato» (euristica sul testo, non comprensione della domanda).
+- Se l'invio fallisce la sessione prosegue; l'errore resta nel registro locale.
+
+**Stato (02/11/2026)**
+- Meccanica installata e usata su turni reali: al 02/11/2026 il registro riporta oltre 40 invii OpenCode
+  (terminale e desktop) e oltre 30 Claude Code/Desktop, un solo messaggio per turno.
+- OpenCode e Claude Code/Desktop hanno superato le prove reali (riga `INVIATA`, messaggio accettato da
+  Telegram). Il conteggio dei task segue l'ultimo elenco del piano più gli avanzamenti successivi; la
+  richiesta mostra l'ultima richiesta vera di Andrea, saltando riprese automatiche, passaggi tra sessioni e
+  riassunti di compattazione.
+- L'area **non è ancora dichiarata `PROVATA`**: manca l'esito della seconda lettura indipendente.
+
+**Seconda lettura indipendente**: 02/11/2026, giro 4 — esito **APPROVATO** (revisione indipendente sul ramo
+`regola/avvisi-fine-lavoro`, PR #9). Chiusi i due rilievi del giro precedente: l'esito non manca più (campo
+`last_assistant_message`, ricaduta sul transcript, altrimenti «esito non disponibile nel transcript» con stato
+«attesa»; prova reale delle 15:41Z con `Esito:</b> OK`) e il perimetro è «Claude Code (anche nelle sessioni
+Code dell'app Desktop)», chat normali escluse. Numeri del registro riverificati (44 invii OpenCode, 35
+Claude) e nessuna dichiarazione `PROVATA` anticipata. L'area è `PROVATA`.

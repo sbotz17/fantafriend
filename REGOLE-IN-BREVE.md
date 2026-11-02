@@ -298,6 +298,34 @@ La fonte globale è `sbotz17/squadraalphalab` (`CLAUDE.md`, `DECISIONI.md`, `ski
 
 ---
 
+## 16. Avviso di fine lavoro su Telegram
+
+Ogni sessione della squadra, in qualunque finestra sia aperta (OpenCode nel terminale, OpenCode Desktop,
+Claude Code, comprese le sessioni Code dell'app Claude Desktop), quando ha finito il lavoro richiesto manda **un solo** messaggio sul canale
+Telegram **Volty Avvisi** (`@volty_avvisi_bot`), lo stesso degli altri avvisi della squadra. Il messaggio
+dice sempre:
+
+- progetto e cartella di lavoro;
+- numero di task completati sul totale (quando esiste un elenco) oppure quante richieste sono state trattate;
+- la richiesta fatta da Andrea, in forma abbreviata;
+- l'esito, in forma abbreviata;
+- ambiente, e quando disponibili modello, durata e identificativo breve della sessione.
+
+Regole pratiche:
+
+- Parla solo la sessione principale: i subagenti non mandano messaggi, per non moltiplicare gli avvisi.
+- Un turno concluso = un messaggio. OpenCode evita i doppioni con un blocco per sessione e messaggio; Claude
+  scatta una volta per turno.
+- Se l'esito finisce con una domanda (`?`), il messaggio dice «In attesa di una risposta» invece di
+  «Lavoro terminato»: è una regola sul testo, quindi una domanda senza punto interrogativo non viene
+  riconosciuta.
+- Se l'invio non riesce, la sessione non si blocca: resta una riga nel registro locale
+  `~/.local/share/notifiche/notifiche.log`.
+- Il token del bot non si scrive in chat, repository, log o screenshot: si legge dalle credenziali locali. La
+  chat id sta in `~/.config/notifiche/telegram.env` (permessi 600).
+
+---
+
 ## In una riga
 
 **La squadra progetta, sviluppa, prova, valida e pubblica; Andrea decide solo le cose riservate e può

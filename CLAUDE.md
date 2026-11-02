@@ -49,6 +49,24 @@ task e chi lo sblocca.
   cancellazione di dati di produzione, o da un errore già commesso e verificato come tale (non dalla normale
   incertezza di lavoro: quella si annota nel report e si procede). Tutto il resto prosegue.
 
+## Avvisi di fine lavoro (decisione di Andrea, 1/11/2026)
+
+**Decisione di Andrea** (chat del 1/11/2026): ogni finestra aperta e ogni sessione eseguita in OpenCode e in
+Claude Code (anche nelle sessioni Code dell'app Desktop), finito il lavoro richiesto, lo comunica sul canale Telegram **Volty Avvisi**
+(`@volty_avvisi_bot`). Il messaggio dice sempre progetto, numero di task completati sul totale (o numero di
+richieste trattate), la richiesta fatta e l'esito; quando disponibili aggiunge ambiente, modello, durata e
+identificativo breve della sessione.
+
+- Un turno concluso = un messaggio. I subagenti e le sessioni figlie non avvisano.
+- Se l'esito termina con una domanda (`?`), il messaggio è marcato «In attesa di una risposta» invece di
+  «Lavoro terminato». È un'euristica sul testo, non una comprensione della domanda.
+- Un invio fallito non blocca la sessione: resta una riga nel registro locale
+  `~/.local/share/notifiche/notifiche.log`.
+- Il token del bot non si scrive mai in regole, repository, chat o log: si legge dalle credenziali locali. La
+  chat id sta in `~/.config/notifiche/telegram.env` (permessi 600).
+- Meccanismo: plugin OpenCode `notifica-telegram` e hook globale `Stop` di Claude in
+  `~/.claude/settings.json`.
+
 ## Lista STOP — quando fermarsi e chiedere ad Andrea (2/11/2026)
 
 Prima di fermarti o chiedere ad Andrea, controlla: l'azione che stai per fare è in questa lista?
