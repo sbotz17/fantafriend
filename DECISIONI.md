@@ -230,3 +230,40 @@ dire il numero di task, il progetto e la richiesta fatta.
 «attesa»; prova reale delle 15:41Z con `Esito:</b> OK`) e il perimetro è «Claude Code (anche nelle sessioni
 Code dell'app Desktop)», chat normali escluse. Numeri del registro riverificati (44 invii OpenCode, 35
 Claude) e nessuna dichiarazione `PROVATA` anticipata. L'area è `PROVATA`.
+
+## 2026-11-04 — Manuale unificato della squadra
+
+**Contesto**: il file `squadraalphalab/CLAUDE.md` era un nucleo volutamente breve (~290 righe) che rimandava
+alle skill per le procedure. Il file `volty-staging/CLAUDE.md` conteneva invece il manuale completo della
+squadra (~250 righe di regole), separato ma con sovrapposizioni e alcune sezioni più aggiornate. I due file
+si erano evoluti indipendentemente.
+
+**Decisione**: Andrea ha chiesto (04/11/2026) di unire il meglio dei due file in un unico manuale completo in
+`squadraalphalab/CLAUDE.md`, che fa da base per tutti i progetti. I progetti mantengono il proprio `CLAUDE.md`
+solo per le specificità di progetto (stack, convenzioni UI/DB, comandi rapidi). La priorità è sempre data al
+`CLAUDE.md` del progetto sui contenuti di squadra.
+
+**Effetto**
+- `squadraalphalab/CLAUDE.md` ampliato da ~290 a ~680 righe: incorpora autonomia e limiti, responsabilità,
+  flusso standard completo (11 passi), flusso ritorni e bug, assistente integrato, accettazione e rilascio,
+  riuso e ordine, ambienti (con variante un-repo-due-rami), stack, regola d'oro dei dati (8 punti),
+  protocollo produzione (9 punti).
+- Generalizzazioni applicate: rimosso l'ID del progetto Supabase di test `gefnursnhofqouupnkvx` (sostituito
+  con rimando a `docs/progetto/ambienti.md`), rimosso `@volty_avvisi_bot` (sostituito con «canale Telegram
+  del progetto»), rimossi i nomi dei workflow CI specifici di Volty.
+- `REGOLE-IN-BREVE.md` aggiornato di conseguenza: stesse generalizzazioni, aggiunto `revisore-sicurezza`
+  alla tabella ruoli.
+- Il `CLAUDE.md` di ogni progetto (a partire da `volty-staging`) potrà in seguito essere snellito
+  rimuovendo le sezioni di squadra duplicate, conservando solo il contenuto specifico.
+
+**File aggiornati** (ramo `feature/manuale-unificato`, PR #10, merged 2026-11-04):
+- `squadraalphalab/CLAUDE.md`
+- `squadraalphalab/DECISIONI.md` (questa voce)
+- `squadraalphalab/REGOLE-IN-BREVE.md`
+
+**Seconda lettura indipendente**: condotta il 04/11/2026 dal `validatore`. Primo esito: RESPINTO — 4
+categorie di correzioni (frase mancante in «Qualità delle prove», contraddizione promozione coordinatore vs CI,
+confusione Telegram/WhatsApp, 6 regole non riportate da volty-staging). Secondo esito dopo correzioni:
+**APPROVATO** — tutti i punti A–D6 verificati OK. Nota non bloccante (D7): la regola esplicita che le PR
+di nuovi sviluppi non possano avere etichetta `tipo:correzione` non è stata aggiunta perché il testo
+esistente già la implica (il validatore ha confermato che non è bloccante).

@@ -7,7 +7,7 @@ scritto per essere letto anche da chi non è tecnico. Le regole complete sono in
 **Regola importante**: ogni volta che cambia una regola, questo documento si aggiorna **nello stesso giro**.
 Non è un riassunto “una volta per tutte”.
 
-**Ultimo aggiornamento**: 02/11/2026
+**Ultimo aggiornamento**: 04/11/2026
 
 ---
 
@@ -72,7 +72,7 @@ Nessun agente, nemmeno per urgenza:
 **Sul database di test** la squadra può fare modifiche e cancellazioni mirate, senza backup dedicato; niente
 DROP/TRUNCATE di massa se non richiesti dal coordinatore e motivati nel task. Prima di cancellare controlla host e ref nella mappa
 `docs/progetto/ambienti.md`. Se non è sicura, tratta il database come produzione e si ferma. Il database di
-test di Volty è `gefnursnhofqouupnkvx`.
+test specifico di ogni progetto è indicato in `docs/progetto/ambienti.md`.
 
 **Non si toccano** il meccanismo di blocco (`BLOCCO-SQUADRA`, `blocco-squadra.py`, hook che lo applicano),
 i segreti e le credenziali di produzione.
@@ -92,6 +92,7 @@ i segreti e le credenziali di produzione.
 | **sviluppatore-frontend** | Interfaccia e collegamento ai dati |
 | **tester** | Prova ogni sviluppo o correzione e scrive il report |
 | **validatore** | Dà APPROVATO o RESPINTO dopo il tester |
+| **revisore-sicurezza** | Verifica accessi, ruoli, RLS, Edge Functions, pagamenti, dati personali; può bloccare |
 | **gestore-ritorni** | Classifica segnalazioni e bug |
 | **risolutore-bug** | Corregge solo bug confermati |
 | **guardiano-produzione** | Dà GO/NO-GO prima, durante e dopo il rilascio |
@@ -302,7 +303,7 @@ La fonte globale è `sbotz17/squadraalphalab` (`CLAUDE.md`, `DECISIONI.md`, `ski
 
 Ogni sessione della squadra, in qualunque finestra sia aperta (OpenCode nel terminale, OpenCode Desktop,
 Claude Code, comprese le sessioni Code dell'app Claude Desktop), quando ha finito il lavoro richiesto manda **un solo** messaggio sul canale
-Telegram **Volty Avvisi** (`@volty_avvisi_bot`), lo stesso degli altri avvisi della squadra. Il messaggio
+il canale Telegram del progetto (configurato in `~/.config/notifiche/telegram.env`), lo stesso degli altri avvisi della squadra. Il messaggio
 dice sempre:
 
 - progetto e cartella di lavoro;
