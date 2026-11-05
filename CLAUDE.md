@@ -95,7 +95,7 @@ Prima di fermarti o chiedere ad Andrea, controlla: l'azione che stai per fare è
 - **"Il tester/validatore ha trovato problemi"** → non è stop: analizza, correggi, rifai il ciclo.
 - **"La CI è fallita"** → non è stop: leggi i log, correggi, rilancia — ma niente rilascio finché non è verde.
 - **Passaggio saltato scoperto in corso d'opera** → non è stop se riguarda documentazione o test: fallo adesso. Se riguarda dati di produzione, un rilascio già avviato o le regole della squadra, vale la voce 5.
-- **"Non trovo le credenziali"** → non è stop: cercale in `~/Progetti locali/<NomeProgetto>/` (file `credenziali-produzione.env` e `credenziali-test.env`). Se non ci sono, **chiedi ad Andrea di inserirle** — le salvi in quel file per le sessioni future, poi prosegui.
+- **"Non trovo le credenziali"** → non è stop: (1) cerca prima in `~/Progetti locali/<NomeProgetto>/` (`credenziali-test.env`, `credenziali-produzione.env`); (2) se non ci sono o mancano valori, leggi i file del progetto — `.env.example`, `supabase/config.toml`, `vercel.json`, workflow CI — e ricava quello che è disponibile (URL, project ref, anon key); (3) chiedi ad Andrea **solo** i valori che non riesci a trovare (di norma: service role key, token segreti). Salva tutto in `~/Progetti locali/<NomeProgetto>/credenziali-test.env` per le sessioni future.
 - **"Non so se ho i permessi per farlo"** → non è stop: prova; se il permesso manca, annota nel registro decisioni esattamente cosa abilitare e prosegui sulle parti che non dipendono da quel permesso.
 - **"Devo scegliere un'interpretazione del requisito"** → non è stop: scegli la più prudente e piccola, annota, vai avanti.
 - **"Non c'è stato un via libera esplicito di Andrea per questa sessione"** → non è stop: l'autonomia è il default. Ogni sessione parte autonoma senza bisogno di autorizzazione.
@@ -111,7 +111,7 @@ Prima di fermarti o chiedere ad Andrea, controlla: l'azione che stai per fare è
 
 **Come usarle**: ogni sessione le legge direttamente con `cat` o `source` prima di qualsiasi operazione che le richiede. Non vanno mai copiate in file del repository, in log o in chat.
 
-**Se mancano**: chiedi ad Andrea di inserirle. Le salvi nel file `~/Progetti locali/<NomeProgetto>/credenziali-test.env` (o `credenziali-produzione.env`) man mano che le fornisce, così le sessioni future le trovano già lì senza chiederle di nuovo.
+**Se mancano o incomplete**: prima leggi i file del progetto — `.env.example`, `supabase/config.toml`, `vercel.json`, workflow CI in `.github/workflows/` — e ricava i valori disponibili (URL, project ref, anon key). Poi chiedi ad Andrea **solo** i valori che non riesci a trovare (di norma: service role key, token segreti). Salva tutto in `~/Progetti locali/<NomeProgetto>/credenziali-test.env` così le sessioni future non chiedono più.
 
 **Formato standard** (da rispettare per ogni progetto, nel file `credenziali-test.env`):
 ```
