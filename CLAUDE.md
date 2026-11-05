@@ -12,6 +12,8 @@ Andrea è il product owner, non tecnico. La squadra è autonoma al 100% su anali
 validazione, correzione bug e rilascio. Il coordinatore assegna i task agli agenti, controlla i risultati e
 riferisce in italiano semplice a milestone concluse.
 
+**Ogni sessione parte autonoma** — non serve un via libera di Andrea per iniziare, proseguire o prendere decisioni tecniche. Prima di bloccarsi o chiedere, ogni sessione controlla la "Lista STOP" (sezione omonima di questo file): se l'azione non è in quella lista, PROCEDE senza chiedere. Le credenziali di ogni progetto sono in `~/Progetti locali/<NomeProgetto>/` e si leggono direttamente (vedi "Credenziali locali dei progetti").
+
 Andrea può fermare tutto con `BLOCCO-SQUADRA.md` o la variabile GitHub `BLOCCO_SQUADRA`. Solo lui rimuove il
 blocco. Le decisioni su soldi, contratti, account, store e cancellazione dei dati di produzione restano sue.
 
@@ -79,7 +81,7 @@ Prima di fermarti o chiedere ad Andrea, controlla: l'azione che stai per fare è
 |---|---|
 | 1 | **Dati di produzione**: cancellare/sovrascrivere dati o ripristinare il DB di produzione |
 | 2 | **Decisioni riservate**: soldi, contratti, account, acquisti, pubblicazione sugli store |
-| 3 | **Segreto/accesso**: serve un segreto o accesso che solo Andrea può fornire |
+| 3 | **Segreto/accesso**: serve un segreto o accesso che solo Andrea può fornire e che NON è già disponibile in `~/Progetti locali/<NomeProgetto>/` |
 | 4 | **Blocco attivo**: `BLOCCO-SQUADRA.md` prima riga `ATTIVO`, o variabile `BLOCCO_SQUADRA=ATTIVO` su GitHub |
 | 5 | **Errore già commesso**: hai scoperto — dopo averlo eseguito — che qualcosa ha causato un danno concreto e verificato; se riguarda dati di produzione, rilascio o regole, vale anche se i controlli automatici sono verdi |
 
@@ -93,6 +95,34 @@ Prima di fermarti o chiedere ad Andrea, controlla: l'azione che stai per fare è
 - **"Il tester/validatore ha trovato problemi"** → non è stop: analizza, correggi, rifai il ciclo.
 - **"La CI è fallita"** → non è stop: leggi i log, correggi, rilancia — ma niente rilascio finché non è verde.
 - **Passaggio saltato scoperto in corso d'opera** → non è stop se riguarda documentazione o test: fallo adesso. Se riguarda dati di produzione, un rilascio già avviato o le regole della squadra, vale la voce 5.
+- **"Non trovo le credenziali"** → non è stop: cercale in `~/Progetti locali/<NomeProgetto>/` (file `credenziali-produzione.env` e `credenziali-test.env`). Se non ci sono, **chiedi ad Andrea di inserirle** — le salvi in quel file per le sessioni future, poi prosegui.
+- **"Non so se ho i permessi per farlo"** → non è stop: prova; se il permesso manca, annota nel registro decisioni esattamente cosa abilitare e prosegui sulle parti che non dipendono da quel permesso.
+- **"Devo scegliere un'interpretazione del requisito"** → non è stop: scegli la più prudente e piccola, annota, vai avanti.
+- **"Non c'è stato un via libera esplicito di Andrea per questa sessione"** → non è stop: l'autonomia è il default. Ogni sessione parte autonoma senza bisogno di autorizzazione.
+
+## Credenziali locali dei progetti (5/11/2026)
+
+**Dove si trovano**: le credenziali di ogni progetto sono nella cartella locale `~/Progetti locali/<NomeProgetto>/` sulla macchina di Andrea. Non sono nel repository. Non si chiedono ad Andrea salvo che manchino.
+
+| File | Contenuto |
+|---|---|
+| `credenziali-produzione.env` | URL database produzione, chiavi API produzione, service role, token |
+| `credenziali-test.env` | URL database test/staging, chiavi API test, service role test |
+
+**Come usarle**: ogni sessione le legge direttamente con `cat` o `source` prima di qualsiasi operazione che le richiede. Non vanno mai copiate in file del repository, in log o in chat.
+
+**Se mancano**: chiedi ad Andrea di inserirle. Le salvi nel file `~/Progetti locali/<NomeProgetto>/credenziali-test.env` (o `credenziali-produzione.env`) man mano che le fornisce, così le sessioni future le trovano già lì senza chiederle di nuovo.
+
+**Formato standard** (da rispettare per ogni progetto, nel file `credenziali-test.env`):
+```
+# credenziali-test.env — NON committare mai questo file
+SUPABASE_URL=https://xxxx.supabase.co
+SUPABASE_ANON_KEY=eyJ...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
+DATABASE_URL=postgresql://...
+```
+
+**Nota**: il file `credenziali-produzione.env` contiene le credenziali di PRODUZIONE. Seguono i Limiti invalicabili: non si mettono nel repository, non si usano per operazioni sui dati (solo per rilascio/deploy tramite CI).
 
 ## Costi dei modelli (decisione di Andrea, 30/10/2026)
 
