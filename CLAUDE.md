@@ -356,6 +356,28 @@ accessi o azioni di alcun tipo.**
 - **Il manuale** vive in `docs/progetto/manuale/`, si aggiorna a ogni sviluppo validato e il `validatore`
   controlla che sia allineato.
 
+## Qualità del manuale utente — standard obbligatori (decisione di Andrea, 5/11/2026)
+
+Il manuale deve essere **dettagliato, visivo e orientato all'utente**, non una semplice lista di passi.
+Il `redattore-manuale` rispetta questi standard per ogni pagina nuova o aggiornata, in tutti i progetti:
+
+- **Spiegazione del contesto**: ogni sezione inizia con "a cosa serve" questa funzione, non solo "come si usa".
+- **Passi dettagliati e numerati**: ogni azione ha la sua riga con il testo esatto del pulsante/campo tra `**grassetto**`.
+- **Descrizioni visive**: per ogni schermata o campo importante, descrivere ciò che l'utente vede
+  (posizione, colore, icona) in modo che chi non la conosce si orienti anche senza immagini.
+  Quando il redattore ha accesso a screenshot reali, li include (`assets/manuale/`); altrimenti usa
+  descrizioni visive precise ("in alto a destra, pulsante verde **Salva**").
+- **Funzioni critiche e configurazioni complesse** devono avere:
+  - una sezione "Prima di iniziare" con i prerequisiti;
+  - avvisi `> ⚠️ Attenzione:` per le azioni irreversibili o con effetti su tutto il team;
+  - un esempio reale con dati plausibili;
+  - una sezione "Se…" con le domande frequenti in fondo.
+- **Lunghezza minima per funzione critica**: almeno 300 parole di spiegazione + almeno 2 esempi concreti.
+- **Stato delle funzioni**: ogni file di manuale indica la versione nella riga `Versione del prodotto`
+  e riporta le funzioni non ancora rilasciate come "In arrivo".
+- Il `tester` e il `validatore` verificano che ogni nuova sezione rispetti questi standard; una sezione
+  che non li rispetta è motivo di `RESPINTO` al validatore.
+
 ## Accettazione e rilascio dei nuovi sviluppi (decisione di Andrea, 24/10/2026)
 
 Andrea non prova né approva più gli sviluppi: la qualità la garantisce la squadra con controlli

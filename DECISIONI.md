@@ -267,3 +267,17 @@ confusione Telegram/WhatsApp, 6 regole non riportate da volty-staging). Secondo 
 **APPROVATO** — tutti i punti A–D6 verificati OK. Nota non bloccante (D7): la regola esplicita che le PR
 di nuovi sviluppi non possano avere etichetta `tipo:correzione` non è stata aggiunta perché il testo
 esistente già la implica (il validatore ha confermato che non è bloccante).
+
+## 2026-11-05 — Standard di qualità del manuale utente
+
+**Decisione di Andrea** (chat del 5/11/2026): il manuale utente di ogni prodotto deve essere dettagliato,
+visivo e orientato all'utente. Non basta una lista di passi: ogni funzione, specialmente quelle critiche
+o complesse, deve avere spiegazione del contesto, passi numerati con i nomi esatti dei pulsanti,
+descrizioni visive delle schermate, esempi reali, avvisi per le azioni irreversibili e FAQ in fondo.
+Lunghezza minima per funzione critica: 300 parole + 2 esempi concreti.
+
+**Effetto**
+- Nuova sezione "Qualità del manuale utente" aggiunta al `CLAUDE.md` globale.
+- Il `redattore-manuale` applica questi standard a ogni pagina nuova o aggiornata, in tutti i progetti.
+- Il `tester` e il `validatore` verificano il rispetto degli standard; una sezione non conforme è `RESPINTA`.
+- I progetti esistenti aprono un task di refactoring del manuale (`docs/progetto/task-refactoring-manuale.md`).
