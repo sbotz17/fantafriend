@@ -334,10 +334,12 @@ Regole pratiche:
 
 ## Uso efficiente dei token (8/11/2026)
 
-Per tenere bassi i costi:
-- Gli agenti leggono solo le parti di file che servono davvero, non l'intero file.
-- I sotto-task raggruppano output e analisi in un'unica risposta per turno, senza inviare tanti messaggi separati.
-- Il contesto già usato (log superati, diff applicati) non viene ripetuto nei turni successivi.
+Per tenere bassi i costi e prevenire errori di quota:
+- **Contesto mirato**: si leggono solo le sezioni di file necessarie, mai l'intero repository.
+- **Risposte concise**: niente ripetizioni del contesto ricevuto né riassunti di ciò che si è appena fatto.
+- **Task atomici**: richieste complesse suddivise in passi brevi, ognuno verificabile e chiuso prima del successivo.
+- **Batching**: output e analisi raggruppati in una sola risposta per turno.
+- **Auto-compaction**: contesto intermedio già consumato (log, diff applicati) non ripetuto nei turni successivi.
 
 ---
 

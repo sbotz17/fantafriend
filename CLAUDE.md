@@ -720,9 +720,11 @@ Se lo strumento non la trova, apri il file `~/.claude/skills/<nome>/SKILL.md` (o
 
 Per contenere i costi di token su tutte le sessioni:
 
-- **Contesto minimale**: vietato passare interi file di grandi dimensioni a ogni turno. Gli agenti leggono solo le sezioni strettamente necessarie tramite strumenti di ricerca mirati (`grep`, `Read` con `offset`/`limit`, `Glob`). Se serve un file intero perché la modifica lo richiede davvero, lo si legge una volta sola e si lavora su quello.
-- **Batching delle richieste**: gli agenti sub-task non inviano richieste atomiche separate al secondo; raggruppano feedback, analisi e output intermedi in un'unica risposta strutturata per turno.
-- **Auto-compaction del contesto**: non appena un sotto-task di programmazione è completato, il contesto intermedio non più rilevante (risultati di ricerca, diff già applicati, log di build superati) non viene ripetuto nei turni successivi — si cita solo il risultato finale.
+- **Contesto mirato**: vietato caricare interi repository o file di grandi dimensioni nel contesto — oltre a essere costoso, causa errori di quota. Si leggono solo le sezioni strettamente necessarie tramite strumenti mirati (`grep`, `Read` con `offset`/`limit`, `Glob`). Se un intero file è davvero necessario, lo si legge una volta sola e si lavora su quello.
+- **Risposte concise**: ogni agente produce la risposta più breve che risolve il problema — niente ripetizioni del contesto ricevuto, niente spiegazioni ovvie, niente riassunti a fine turno di ciò che si è appena fatto. Il codice parla da solo; i commenti si limitano al "perché non ovvio".
+- **Atomicità dei task**: le richieste complesse si suddividono in passaggi brevi e indipendenti. Ogni passaggio ha un obiettivo verificabile e si chiude prima di aprire il successivo. Questo mantiene bassi sia i token per turno sia le richieste al minuto.
+- **Batching delle richieste**: gli agenti sub-task raggruppano feedback, analisi e output intermedi in un'unica risposta strutturata per turno; non inviano messaggi atomici separati.
+- **Auto-compaction del contesto**: non appena un sotto-task è completato, il contesto intermedio non più rilevante (risultati di ricerca, diff già applicati, log di build superati) non viene ripetuto nei turni successivi — si cita solo il risultato finale.
 
 ## Comandi
 
