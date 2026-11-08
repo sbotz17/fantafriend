@@ -332,6 +332,15 @@ Regole pratiche:
 
 ---
 
+## Uso efficiente dei token (8/11/2026)
+
+Per tenere bassi i costi:
+- Gli agenti leggono solo le parti di file che servono davvero, non l'intero file.
+- I sotto-task raggruppano output e analisi in un'unica risposta per turno, senza inviare tanti messaggi separati.
+- Il contesto già usato (log superati, diff applicati) non viene ripetuto nei turni successivi.
+
+---
+
 ## In una riga
 
 **La squadra progetta, sviluppa, prova, valida e pubblica; Andrea decide solo le cose riservate e può fermare tutto. Ogni sessione parte autonoma: non chiede mai il via libera, usa le credenziali in `~/Progetti locali/` e si blocca SOLO per le 5 cause della Lista STOP. Le prove le fa la squadra, non Andrea. I dati di produzione si toccano solo con backup e, per le cancellazioni, con il suo via libera.**
